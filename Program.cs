@@ -1,4 +1,5 @@
 using HotelManagementAPI.Entities;
+using HotelManagementAPI.Seeders;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -15,6 +16,7 @@ builder.Services.Configure<JsonOptions>(options =>
 {
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+builder.Services.AddScoped<IHotelSeeder, HotelSeeder>();
 
 // API stuff
 

@@ -12,11 +12,6 @@ namespace HotelManagementAPI.Entities.Configurations
                 .HasForeignKey(fk => fk.MadeById)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(r => r.Room)
-                .WithOne(r => r.Reservation)
-                .HasForeignKey<Room>(fk => fk.ReservationId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.Property(r => r.CheckInDate)
                 .IsRequired();
             builder.Property(r => r.CheckOutDate)

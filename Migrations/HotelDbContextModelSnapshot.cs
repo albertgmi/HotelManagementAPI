@@ -243,7 +243,7 @@ namespace HotelManagementAPI.Migrations
                     b.HasOne("HotelManagementAPI.Entities.Reservation", "Reservation")
                         .WithOne("Room")
                         .HasForeignKey("HotelManagementAPI.Entities.Room", "ReservationId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Hotel");

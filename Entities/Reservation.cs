@@ -6,7 +6,7 @@
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
         public decimal ReservationPrice { get; set; }
-        public string Status { get; set; } = "Pending";
+        public string Status { get; set; }
         
         // Relations
         public int MadeById { get; set; }

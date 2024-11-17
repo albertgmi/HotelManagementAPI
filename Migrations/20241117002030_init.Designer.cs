@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagementAPI.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    [Migration("20241116231116_init")]
+    [Migration("20241117002030_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -245,7 +245,7 @@ namespace HotelManagementAPI.Migrations
                     b.HasOne("HotelManagementAPI.Entities.Reservation", "Reservation")
                         .WithOne("Room")
                         .HasForeignKey("HotelManagementAPI.Entities.Room", "ReservationId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Hotel");

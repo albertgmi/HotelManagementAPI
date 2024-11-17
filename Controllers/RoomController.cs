@@ -6,6 +6,10 @@ namespace HotelManagementAPI.Controllers
     [ApiController]
     public class RoomController : ControllerBase
     {
-
+        [HttpGet("available-rooms")]
+        public ActionResult GetAvailableRooms([FromRoute] int hotelId, [FromQuery] DateTime? from, [FromQuery] DateTime? to)
+        {
+            return Ok();
+        }
     }
 }

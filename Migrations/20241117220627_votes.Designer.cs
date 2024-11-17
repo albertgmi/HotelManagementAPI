@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagementAPI.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    [Migration("20241117002030_init")]
-    partial class init
+    [Migration("20241117220627_votes")]
+    partial class votes
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,9 +36,6 @@ namespace HotelManagementAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("HotelId")
-                        .HasColumnType("int");
-
                     b.Property<string>("PostalCode")
                         .HasColumnType("nvarchar(max)");
 
@@ -47,9 +44,6 @@ namespace HotelManagementAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("HotelId")
-                        .IsUnique();
 
                     b.ToTable("Addresses");
                 });
@@ -61,6 +55,9 @@ namespace HotelManagementAPI.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -75,7 +72,13 @@ namespace HotelManagementAPI.Migrations
                     b.Property<decimal>("Rating")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Votes")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId")
+                        .IsUnique();
 
                     b.HasIndex("ManagedById");
 
@@ -103,7 +106,6 @@ namespace HotelManagementAPI.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -201,24 +203,21 @@ namespace HotelManagementAPI.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("HotelManagementAPI.Entities.Address", b =>
+            modelBuilder.Entity("HotelManagementAPI.Entities.Hotel", b =>
                 {
-                    b.HasOne("HotelManagementAPI.Entities.Hotel", "Hotel")
-                        .WithOne("Address")
-                        .HasForeignKey("HotelManagementAPI.Entities.Address", "HotelId")
+                    b.HasOne("HotelManagementAPI.Entities.Address", "Address")
+                        .WithOne("Hotel")
+                        .HasForeignKey("HotelManagementAPI.Entities.Hotel", "AddressId")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.Navigation("Hotel");
-                });
-
-            modelBuilder.Entity("HotelManagementAPI.Entities.Hotel", b =>
-                {
                     b.HasOne("HotelManagementAPI.Entities.User", "ManagedBy")
                         .WithMany("Hotels")
                         .HasForeignKey("ManagedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Address");
 
                     b.Navigation("ManagedBy");
                 });
@@ -264,18 +263,19 @@ namespace HotelManagementAPI.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("HotelManagementAPI.Entities.Address", b =>
+                {
+                    b.Navigation("Hotel");
+                });
+
             modelBuilder.Entity("HotelManagementAPI.Entities.Hotel", b =>
                 {
-                    b.Navigation("Address")
-                        .IsRequired();
-
                     b.Navigation("Rooms");
                 });
 
             modelBuilder.Entity("HotelManagementAPI.Entities.Reservation", b =>
                 {
-                    b.Navigation("Room")
-                        .IsRequired();
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("HotelManagementAPI.Entities.Role", b =>

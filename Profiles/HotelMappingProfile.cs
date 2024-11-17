@@ -2,6 +2,7 @@
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Models.RoomModels;
+using HotelManagementAPI.Models.UserModels;
 
 namespace HotelManagementAPI.Profiles
 {
@@ -17,6 +18,7 @@ namespace HotelManagementAPI.Profiles
                 .ForMember(r => r.Address, dto => dto.MapFrom(x => new Address()
                 { City = x.City, Street = x.Street, PostalCode = x.PostalCode }));
             CreateMap<Room, RoomDto>();
+            CreateMap<User, UserDto>();
         }
     }
 }

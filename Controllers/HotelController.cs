@@ -37,5 +37,30 @@ namespace HotelManagementAPI.Controllers
             _hotelService.Update(hotelId, hotelDto);
             return NoContent();
         }
+        [HttpDelete("{hotelId}")]
+        public ActionResult Delete([FromRoute] int hotelId)
+        {
+            _hotelService.Delete(hotelId);
+            return NoContent();
+        }
+        [HttpPost("{hotelId}/assign-manager")]
+        public ActionResult AssignManager([FromRoute] int hotelId, [FromQuery] int userId)
+        {
+            _hotelService.AssignManager(hotelId, userId);
+            return Ok();
+        }
+        [HttpGet("{hotelId}/manager")]
+        public ActionResult GetManager([FromRoute] int hotelId)
+        {
+            var manager = _hotelService.GetManager(hotelId);
+            return Ok(manager);
+        }
+        [HttpPost("{hotelId}/add-rating")]
+        public ActionResult AddRating([FromRoute]int hotelId, [FromQuery]decimal rating)
+        {
+            _hotelService.AddRating(hotelId, rating);
+            return Ok();
+        }
+
     }
 }

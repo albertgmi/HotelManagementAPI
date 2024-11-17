@@ -3,7 +3,9 @@ using Bogus;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Exceptions;
 using HotelManagementAPI.Models.HotelModels;
+using HotelManagementAPI.Models.UserModels;
 using HotelManagementAPI.Services.UserServiceFolder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagementAPI.Services.HotelServiceFolder
@@ -71,6 +73,69 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
 
             hotel.Name = dto.Name;
             hotel.Description = dto.Description;
+            _dbContext.SaveChanges();
+        }
+        public void Delete(int id)
+        {
+            var hotel = _dbContext
+                .Hotels
+                .FirstOrDefault(x=>x.Id==id);
+            if (hotel is null)
+                throw new NotFoundException("Hotel not found");
+            _dbContext.Hotels.Remove(hotel);
+            _dbContext.SaveChanges();
+        }
+        public void AssignManager(int hotelId, int managerId)
+        {
+            var hotel = _dbContext
+                .Hotels
+                .FirstOrDefault(x=>x.Id == hotelId);
+            if (hotel is null)
+                throw new NotFoundException("Hotel not found");
+            hotel.ManagedById = managerId;
+            _dbContext.SaveChanges();
+        }
+        public UserDto GetManager(int hotelId)
+        {
+            var hotel = _dbContext
+                .Hotels
+                .FirstOrDefault(x => x.Id == hotelId);
+            if (hotel is null)
+                throw new NotFoundException("Hotel not found");
+            var managerId = hotel.ManagedById;
+            var manager = _dbContext
+                .Users
+                .FirstOrDefault(x=>x.Id== managerId);
+            if (manager is null)
+                throw new NotFoundException("Hotel manager not found");
+            var managerDto = _mapper.Map<UserDto>(manager);
+            return managerDto;
+        }
+        public void AddRating (int hotelId, decimal rating)
+        {
+            if (rating < 1 || rating > 5)
+                throw new NotInRangeException("Rating has to be in range 1-5");
+
+            var hotel = _dbContext
+                .Hotels
+                .FirstOrDefault(x => x.Id == hotelId);
+
+            if (hotel is null)
+                throw new NotFoundException("Hotel not found");
+
+            var hotelRating = hotel.Rating;
+            var opinionNumber = hotel.NumberOfOpinions;
+
+            if (hotelRating == 0)
+                opinionNumber = 0;
+            else
+                opinionNumber = 1;
+
+            opinionNumber = opinionNumber + 1;
+            var newRating = (hotelRating + rating)/opinionNumber;
+            hotel.Rating = newRating;
+            hotel.NumberOfOpinions = opinionNumber;
+
             _dbContext.SaveChanges();
         }
     }

@@ -7,6 +7,7 @@
         public string? Type { get; set; }
         public int Capacity { get; set; }
         public decimal PricePerNight { get; set; }
+        public bool IsAvailable { get; set; }
 
         // Relations
         public int HotelId { get; set; }

@@ -115,9 +115,10 @@ namespace HotelManagementAPI.Seeders
                 {
                     Name = faker.Company.CompanyName(),
                     Description = faker.Lorem.Text(),
-                    Rating = faker.Random.Decimal()*5,
+                    Rating = faker.Random.Decimal() * 5,
                     ManagedById = users[faker.Random.Int(0, users.Count() - 1)].Id,
-                    AddressId = addresses[faker.Random.Int(0, addresses.Count()-1)].Id                   
+                    AddressId = addresses[faker.Random.Int(0, addresses.Count() - 1)].Id,
+                    NumberOfRatings = 0
                 });
             }
             return hotels;
@@ -154,7 +155,7 @@ namespace HotelManagementAPI.Seeders
 
             foreach (var hotel in hotels)
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 30; i++)
                 {
                     var room = new Room()
                     {
@@ -162,6 +163,7 @@ namespace HotelManagementAPI.Seeders
                         Type = roomTypes[faker.Random.Int(0, roomTypes.Length - 1)],
                         Capacity = faker.Random.Int(1, 10),
                         PricePerNight = faker.Random.Decimal() * 25,
+                        IsAvailable = faker.Random.Bool(),
                         HotelId = hotel.Id,
                         ReservationId = reservations[faker.Random.Int(0, reservations.Count - 1)].Id
                     };

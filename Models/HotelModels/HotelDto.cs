@@ -7,7 +7,7 @@ namespace HotelManagementAPI.Models.HotelModels
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string? Description { get; set; }
+        public string Description { get; set; }
         public decimal Rating { get; set; }
         public string City { get; set; }
         public string Street { get; set; }

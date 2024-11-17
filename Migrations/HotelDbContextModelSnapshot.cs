@@ -67,7 +67,7 @@ namespace HotelManagementAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NumberOfOpinions")
+                    b.Property<int>("NumberOfRatings")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Rating")
@@ -143,6 +143,9 @@ namespace HotelManagementAPI.Migrations
 
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()

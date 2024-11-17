@@ -6,5 +6,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
     {
         List<HotelDto> GetAll();
         HotelDto GetById(int id);
+        int Create(CreateHotelDto dto);
+        void Update(int id, UpdateHotelDto dto);
     }
 }

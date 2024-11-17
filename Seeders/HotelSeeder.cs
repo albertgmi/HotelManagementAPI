@@ -10,7 +10,7 @@ namespace HotelManagementAPI.Seeders
 {
     public class HotelSeeder : IHotelSeeder
     {
-        readonly Faker faker = new Faker();
+        readonly Faker faker = new Faker("pl");
         readonly Randomizer randomizer = new Randomizer();
         private readonly IPasswordHasher<User> _passwordHasher;
         public void Seed(HotelDbContext _dbContext) 
@@ -90,7 +90,7 @@ namespace HotelManagementAPI.Seeders
             
             for (int i = 0; i < 200; i++)
             {
-                var faker2 = new Faker();
+                var faker2 = new Faker("pl");
                 var passwordBeforeHash = randomizer.String2(length: 8, chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()");
                 var user = new User()
                 {
@@ -154,20 +154,22 @@ namespace HotelManagementAPI.Seeders
 
             foreach (var hotel in hotels)
             {
-                var room = new Room()
+                for (int i = 0; i < 10; i++)
                 {
-                    Name = $"{faker.Address.City()} {faker.Random.Word()} Room",
-                    Type = roomTypes[faker.Random.Int(0, roomTypes.Length - 1)],
-                    Capacity = faker.Random.Int(1, 10),
-                    PricePerNight = faker.Random.Decimal() * 25,
-                    HotelId = hotel.Id,
-                    ReservationId = reservations[faker.Random.Int(0, reservations.Count - 1)].Id
-                };
+                    var room = new Room()
+                    {
+                        Name = $"{faker.Address.City()} {faker.Random.Word()} Room",
+                        Type = roomTypes[faker.Random.Int(0, roomTypes.Length - 1)],
+                        Capacity = faker.Random.Int(1, 10),
+                        PricePerNight = faker.Random.Decimal() * 25,
+                        HotelId = hotel.Id,
+                        ReservationId = reservations[faker.Random.Int(0, reservations.Count - 1)].Id
+                    };
 
-                hotel.Rooms.Add(room);
-                rooms.Add(room);
+                    hotel.Rooms.Add(room);
+                    rooms.Add(room);
+                }               
             }
-
             for (int i = 0; i < 200; i++)
             {
                 var room = new Room()

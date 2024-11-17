@@ -31,6 +31,8 @@ builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddSwaggerGen();
 

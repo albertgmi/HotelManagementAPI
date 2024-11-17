@@ -1,4 +1,5 @@
-﻿using HotelManagementAPI.Services.HotelServiceFolder;
+﻿using HotelManagementAPI.Models.HotelModels;
+using HotelManagementAPI.Services.HotelServiceFolder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelManagementAPI.Controllers
@@ -23,6 +24,18 @@ namespace HotelManagementAPI.Controllers
         {
             var result = _hotelService.GetById(id);
             return Ok(result);
+        }
+        [HttpPost]
+        public ActionResult Create([FromBody] CreateHotelDto hotelDto)
+        {
+            var hotelId = _hotelService.Create(hotelDto);
+            return Created($"Hotel with id: {hotelId} created", null);
+        }
+        [HttpPut("{hotelId}")]
+        public ActionResult Update([FromRoute]int hotelId, [FromBody] UpdateHotelDto hotelDto)
+        {
+            _hotelService.Update(hotelId, hotelDto);
+            return NoContent();
         }
     }
 }

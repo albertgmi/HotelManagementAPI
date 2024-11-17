@@ -7,6 +7,10 @@ namespace HotelManagementAPI.Entities.Configurations
     {
         public void Configure(EntityTypeBuilder<Room> builder)
         {
+            builder.HasOne(r=>r.Reservation)
+                .WithOne(r=>r.Room)
+                .HasForeignKey<Room>(fk=>fk.ReservationId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Property(r => r.Name)
                 .IsRequired();
             builder.Property(r => r.Capacity)

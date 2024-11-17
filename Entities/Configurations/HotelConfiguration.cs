@@ -9,7 +9,7 @@ namespace HotelManagementAPI.Entities.Configurations
         {
             builder.HasOne(h => h.Address)
                 .WithOne(a => a.Hotel)
-                .HasForeignKey<Address>(a => a.HotelId)
+                .HasForeignKey<Hotel>(a => a.AddressId)
                 .OnDelete(DeleteBehavior.ClientCascade);
 
             builder.HasOne(h => h.ManagedBy)

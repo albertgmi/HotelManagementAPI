@@ -8,7 +8,6 @@
         public string? PostalCode { get; set; }
 
         // Relations
-        public int HotelId { get; set; }
         public Hotel Hotel { get; set; }
     }
 }

@@ -9,6 +9,7 @@ namespace HotelManagementAPI.Entities
         public decimal Rating { get; set; }
 
         // Relations
+        public int AddressId { get; set; }
         public Address Address { get; set; }
         public int ManagedById { get; set; }
         public User ManagedBy { get; set; }

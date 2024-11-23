@@ -1,4 +1,6 @@
-﻿namespace HotelManagementAPI.Models.RoomModels
+﻿using HotelManagementAPI.Models.ReservationModels;
+
+namespace HotelManagementAPI.Models.RoomModels
 {
     public class RoomDto
     {
@@ -8,5 +10,6 @@
         public int Capacity { get; set; }
         public decimal PricePerNight { get; set; }
         public bool IsAvailable { get; set; }
+        public List<ReservationDto> Reservations { get; set; }
     }
 }

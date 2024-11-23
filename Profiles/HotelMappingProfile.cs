@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Models.HotelModels;
+using HotelManagementAPI.Models.ReservationModels;
 using HotelManagementAPI.Models.RoomModels;
 using HotelManagementAPI.Models.UserModels;
 
@@ -19,6 +20,7 @@ namespace HotelManagementAPI.Profiles
                 { City = x.City, Street = x.Street, PostalCode = x.PostalCode }));
             CreateMap<Room, RoomDto>();
             CreateMap<User, UserDto>();
+            CreateMap<Reservation, ReservationDto>();
         }
     }
 }

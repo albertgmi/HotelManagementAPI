@@ -12,5 +12,6 @@
         public int MadeById { get; set; }
         public User MadeBy { get; set; }
         public Room Room { get; set; }
+        public int RoomId { get; set; }
     }
 }

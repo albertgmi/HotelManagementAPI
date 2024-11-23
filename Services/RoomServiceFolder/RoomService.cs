@@ -53,6 +53,7 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
             var hotel = _dbContext
                 .Hotels
                 .Include(x => x.Rooms)
+                .ThenInclude(r=>r.Reservations)
                 .FirstOrDefault(x => x.Id == hotelId);
             if (hotel is null)
                 throw new NotFoundException("Hotel not found");

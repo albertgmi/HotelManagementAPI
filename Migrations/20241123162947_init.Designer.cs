@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagementAPI.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    [Migration("20241117233429_init")]
+    [Migration("20241123162947_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,12 +105,17 @@ namespace HotelManagementAPI.Migrations
                     b.Property<decimal>("ReservationPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MadeById");
+
+                    b.HasIndex("RoomId");
 
                     b.ToTable("Reservations");
                 });
@@ -156,18 +161,12 @@ namespace HotelManagementAPI.Migrations
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ReservationId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("HotelId");
-
-                    b.HasIndex("ReservationId")
-                        .IsUnique();
 
                     b.ToTable("Rooms");
                 });
@@ -233,7 +232,15 @@ namespace HotelManagementAPI.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("HotelManagementAPI.Entities.Room", "Room")
+                        .WithMany("Reservations")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("MadeBy");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("HotelManagementAPI.Entities.Room", b =>
@@ -244,15 +251,7 @@ namespace HotelManagementAPI.Migrations
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("HotelManagementAPI.Entities.Reservation", "Reservation")
-                        .WithOne("Room")
-                        .HasForeignKey("HotelManagementAPI.Entities.Room", "ReservationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Hotel");
-
-                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("HotelManagementAPI.Entities.User", b =>
@@ -276,14 +275,14 @@ namespace HotelManagementAPI.Migrations
                     b.Navigation("Rooms");
                 });
 
-            modelBuilder.Entity("HotelManagementAPI.Entities.Reservation", b =>
-                {
-                    b.Navigation("Room");
-                });
-
             modelBuilder.Entity("HotelManagementAPI.Entities.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("HotelManagementAPI.Entities.Room", b =>
+                {
+                    b.Navigation("Reservations");
                 });
 
             modelBuilder.Entity("HotelManagementAPI.Entities.User", b =>

@@ -134,7 +134,7 @@ namespace HotelManagementAPI.Seeders
                 {
                     CheckInDate = faker.Date.Between(DateTime.Parse("2024-01-01"), DateTime.Now),
                     CheckOutDate = faker.Date.Between(DateTime.Now.AddDays(1), DateTime.Now.AddDays(60)),
-                    ReservationPrice = faker.Random.Decimal() * 10,
+                    TotalPrice = faker.Random.Decimal() * 10,
                     Status = status[faker.Random.Int(0, status.Length - 1)],
                     MadeById = users[faker.Random.Int(0, users.Count() - 1)].Id,
                     RoomId = rooms[faker.Random.Int(0, rooms.Count()-1)].Id

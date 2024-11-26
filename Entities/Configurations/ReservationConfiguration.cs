@@ -16,7 +16,7 @@ namespace HotelManagementAPI.Entities.Configurations
                 .IsRequired();
             builder.Property(r => r.CheckOutDate)
                 .IsRequired();
-            builder.Property(r => r.ReservationPrice)
+            builder.Property(r => r.TotalPrice)
                 .HasColumnType("decimal(18, 2)")
                 .IsRequired();
         }

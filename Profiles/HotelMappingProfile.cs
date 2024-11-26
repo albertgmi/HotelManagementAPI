@@ -21,9 +21,11 @@ namespace HotelManagementAPI.Profiles
 
             CreateMap<Room, RoomDto>();
             CreateMap<CreateRoomDto, Room>();
-            CreateMap<User, UserDto>();
-            CreateMap<Reservation, ReservationDto>();
 
+            CreateMap<User, UserDto>();
+
+            CreateMap<Reservation, ReservationDto>();
+            CreateMap<CreateReservationDto, ReservationDto>();
         }
     }
 }

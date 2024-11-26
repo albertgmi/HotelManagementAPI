@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
-        public decimal ReservationPrice { get; set; }
+        public decimal TotalPrice { get; set; }
         public string Status { get; set; }
         
         // Relations

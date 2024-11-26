@@ -18,9 +18,12 @@ namespace HotelManagementAPI.Profiles
             CreateMap<CreateHotelDto, Hotel>()
                 .ForMember(r => r.Address, dto => dto.MapFrom(x => new Address()
                 { City = x.City, Street = x.Street, PostalCode = x.PostalCode }));
+
             CreateMap<Room, RoomDto>();
+            CreateMap<CreateRoomDto, Room>();
             CreateMap<User, UserDto>();
             CreateMap<Reservation, ReservationDto>();
+
         }
     }
 }

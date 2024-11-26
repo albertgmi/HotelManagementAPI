@@ -7,5 +7,10 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
     {
         List<RoomDto> GetAll(int hotelId);
         RoomDto GetById(int hotelId, int roomId);
+        int CreateRoom(int hotelId, CreateRoomDto dto);
+        void UpdateRoom(int hotelId, int roomId, UpdateRoomDto dto);
+        void DeleteRoomById(int hotelId, int roomId);
+        void DeleteAllRooms(int hotelId);
+        List<RoomDto> GetAvailableRooms(int hotelId, DateTime from, DateTime? to);
     }
 }

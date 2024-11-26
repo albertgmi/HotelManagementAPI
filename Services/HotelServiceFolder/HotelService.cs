@@ -30,6 +30,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 .Hotels
                 .Include(h=>h.Address)
                 .Include(h=>h.Rooms)
+                .ThenInclude(r=>r.Reservations)
                 .ToList();
             if (hotels is null)
                 throw new NotFoundException("Hotel not found");

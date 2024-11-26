@@ -50,6 +50,7 @@ builder.Services.AddScoped<IValidator<UpdateHotelDto>, UpdateHotelDtoValidator>(
 
 var app = builder.Build();
 
+app.UseStaticFiles();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())

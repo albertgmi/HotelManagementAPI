@@ -39,13 +39,13 @@ namespace HotelManagementAPI.Seeders
                 var hotels = CreateHotels(_dbContext.Users.ToList(), _dbContext.Addresses.ToList());
                 _dbContext.Hotels.AddRange(hotels);
                 _dbContext.SaveChanges();
-                
-                var reservations = CreateReservations(_dbContext.Users.ToList());
-                _dbContext.Reservations.AddRange(reservations);
+
+                var rooms = CreateRooms(_dbContext.Hotels.ToList());
+                _dbContext.Rooms.AddRange(rooms);
                 _dbContext.SaveChanges();
 
-                var rooms = CreateRooms(_dbContext.Hotels.ToList(), _dbContext.Reservations.ToList());
-                _dbContext.Rooms.AddRange(rooms);
+                var reservations = CreateReservations(_dbContext.Users.ToList(), _dbContext.Rooms.ToList());
+                _dbContext.Reservations.AddRange(reservations);
                 _dbContext.SaveChanges();
             }
         }
@@ -115,33 +115,35 @@ namespace HotelManagementAPI.Seeders
                 {
                     Name = faker.Company.CompanyName(),
                     Description = faker.Lorem.Text(),
-                    Rating = faker.Random.Decimal()*5,
+                    Rating = faker.Random.Decimal() * 5,
                     ManagedById = users[faker.Random.Int(0, users.Count() - 1)].Id,
-                    AddressId = addresses[faker.Random.Int(0, addresses.Count()-1)].Id                   
+                    AddressId = addresses[faker.Random.Int(0, addresses.Count() - 1)].Id,
+                    NumberOfRatings = 0
                 });
             }
             return hotels;
         }
         
-        private List<Reservation> CreateReservations(List<User> users)
+        private List<Reservation> CreateReservations(List<User> users, List<Room> rooms)
         {
             var status = new string[] { "Pending", "Confirmed", "Checked-in", "Completed", "Cancelled", "Paid" };
             var reservations = new List<Reservation>();
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 4000; i++)
             {
                 reservations.Add(new Reservation()
                 {
                     CheckInDate = faker.Date.Between(DateTime.Parse("2024-01-01"), DateTime.Now),
                     CheckOutDate = faker.Date.Between(DateTime.Now.AddDays(1), DateTime.Now.AddDays(60)),
-                    ReservationPrice = faker.Random.Decimal() * 10,
+                    TotalPrice = faker.Random.Decimal() * 10,
                     Status = status[faker.Random.Int(0, status.Length - 1)],
-                    MadeById = users[faker.Random.Int(0, users.Count() - 1)].Id
+                    MadeById = users[faker.Random.Int(0, users.Count() - 1)].Id,
+                    RoomId = rooms[faker.Random.Int(0, rooms.Count()-1)].Id
                 });
             }
             return reservations;
         }
 
-        private List<Room> CreateRooms(List<Hotel> hotels, List<Reservation> reservations)
+        private List<Room> CreateRooms(List<Hotel> hotels)
         {
             var roomTypes = new string[]
             {
@@ -154,7 +156,7 @@ namespace HotelManagementAPI.Seeders
 
             foreach (var hotel in hotels)
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 30; i++)
                 {
                     var room = new Room()
                     {
@@ -162,8 +164,8 @@ namespace HotelManagementAPI.Seeders
                         Type = roomTypes[faker.Random.Int(0, roomTypes.Length - 1)],
                         Capacity = faker.Random.Int(1, 10),
                         PricePerNight = faker.Random.Decimal() * 25,
-                        HotelId = hotel.Id,
-                        ReservationId = reservations[faker.Random.Int(0, reservations.Count - 1)].Id
+                        IsAvailable = faker.Random.Bool(),
+                        HotelId = hotel.Id
                     };
 
                     hotel.Rooms.Add(room);
@@ -178,8 +180,7 @@ namespace HotelManagementAPI.Seeders
                     Type = roomTypes[faker.Random.Int(0, roomTypes.Length - 1)],
                     Capacity = faker.Random.Int(1, 10),
                     PricePerNight = faker.Random.Decimal() * 25,
-                    HotelId = hotels[faker.Random.Int(0, hotels.Count - 1)].Id,
-                    ReservationId = reservations[faker.Random.Int(0, reservations.Count - 1)].Id
+                    HotelId = hotels[faker.Random.Int(0, hotels.Count - 1)].Id
                 };
 
                 rooms.Add(room);

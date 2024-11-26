@@ -30,6 +30,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 .Hotels
                 .Include(h=>h.Address)
                 .Include(h=>h.Rooms)
+                .ThenInclude(r=>r.Reservations)
                 .ToList();
             if (hotels is null)
                 throw new NotFoundException("Hotel not found");
@@ -111,7 +112,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             var managerDto = _mapper.Map<UserDto>(manager);
             return managerDto;
         }
-        public void AddRating (int hotelId, decimal rating)
+        public void AddRating(int hotelId, decimal rating)
         {
             if (rating < 1 || rating > 5)
                 throw new NotInRangeException("Rating has to be in range 1-5");
@@ -123,20 +124,18 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             if (hotel is null)
                 throw new NotFoundException("Hotel not found");
 
-            var hotelRating = hotel.Rating;
-            var opinionNumber = hotel.NumberOfOpinions;
-
-            if (hotelRating == 0)
-                opinionNumber = 0;
+            if (hotel.NumberOfRatings == 0)
+            {
+                hotel.Rating = rating;
+                hotel.NumberOfRatings = 1;
+            }
             else
-                opinionNumber = 1;
-
-            opinionNumber = opinionNumber + 1;
-            var newRating = (hotelRating + rating)/opinionNumber;
-            hotel.Rating = newRating;
-            hotel.NumberOfOpinions = opinionNumber;
-
+            {
+                hotel.NumberOfRatings++;
+                hotel.Rating = (hotel.Rating * (hotel.NumberOfRatings - 1) + rating) / hotel.NumberOfRatings;
+            }
             _dbContext.SaveChanges();
         }
+
     }
 }

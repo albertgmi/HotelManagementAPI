@@ -7,7 +7,7 @@ namespace HotelManagementAPI.Entities
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Rating { get; set; }
-        public int NumberOfOpinions { get; set; } = 1;
+        public int NumberOfRatings { get; set; }
 
         // Relations
         public int AddressId { get; set; }

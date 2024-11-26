@@ -1,5 +1,9 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Middlewares;
+using HotelManagementAPI.Models.HotelModels;
+using HotelManagementAPI.Models.Validators.HotelValidations;
 using HotelManagementAPI.Seeders;
 using HotelManagementAPI.Services.HotelServiceFolder;
 using HotelManagementAPI.Services.ReservationServiceFolder;
@@ -26,7 +30,13 @@ builder.Services.AddScoped<IHotelSeeder, HotelSeeder>();
 
 // API stuff
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddFluentValidation();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddSwaggerGen();
+
+// Dependcies injection
+
 builder.Services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
@@ -34,12 +44,13 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IValidator<CreateHotelDto>, CreateHotelDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateHotelDto>, UpdateHotelDtoValidator>();
+
 
 var app = builder.Build();
 
+app.UseStaticFiles();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())

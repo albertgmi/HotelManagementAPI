@@ -1,5 +1,6 @@
 ﻿using HotelManagementAPI.Models.ReservationModels;
 using HotelManagementAPI.Services.ReservationServiceFolder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
 
@@ -7,6 +8,7 @@ namespace HotelManagementAPI.Controllers
 {
     [Route("/api/hotel/{hotelId}/room/{roomId}/reservation")]
     [ApiController]
+    [Authorize]
     public class ReservationController : ControllerBase
     {
         private readonly IReservationService _reservationService;

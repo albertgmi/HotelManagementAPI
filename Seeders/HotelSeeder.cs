@@ -58,7 +58,7 @@ namespace HotelManagementAPI.Seeders
             var roles = new List<Role>();
             roles.Add(new Role()
             {
-                Name = "Customer"
+                Name = "Guest"
             });
             roles.Add(new Role()
             {
@@ -73,7 +73,7 @@ namespace HotelManagementAPI.Seeders
         private List<Entities.Address> CreateAddresses()
         {
             var addresses = new List<Entities.Address>();
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 400; i++)
             {
                 addresses.Add(new Entities.Address()
                 {
@@ -88,7 +88,7 @@ namespace HotelManagementAPI.Seeders
         {
             var users = new List<User>();
             
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 400; i++)
             {
                 var faker2 = new Faker("pl");
                 var passwordBeforeHash = randomizer.String2(length: 8, chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()");
@@ -98,7 +98,8 @@ namespace HotelManagementAPI.Seeders
                     LastName = faker2.Person.LastName,
                     Email = faker2.Person.Email,
                     PasswordHash = passwordBeforeHash,
-                    RoleId = roles[faker.Random.Int(0, roles.Count()-1)].Id
+                    RoleId = roles[faker.Random.Int(0, roles.Count()-1)].Id,
+                    DateOfBirth = faker.Date.Between(DateTime.Parse("1930-01-01"), DateTime.Parse("2015-01-01"))
                 };
                 var hashed = _passwordHasher.HashPassword(user, user.PasswordHash);
                 user.PasswordHash = hashed;
@@ -109,7 +110,7 @@ namespace HotelManagementAPI.Seeders
         private List<Hotel> CreateHotels(List<User> users, List<Entities.Address> addresses)
         {
             var hotels = new List<Hotel>();
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 400; i++)
             {
                 hotels.Add(new Hotel()
                 {
@@ -128,7 +129,7 @@ namespace HotelManagementAPI.Seeders
         {
             var status = new string[] { "Pending", "Confirmed", "Checked-in", "Completed", "Cancelled", "Paid" };
             var reservations = new List<Reservation>();
-            for (int i = 0; i < 4000; i++)
+            for (int i = 0; i < 10000; i++)
             {
                 reservations.Add(new Reservation()
                 {
@@ -156,7 +157,7 @@ namespace HotelManagementAPI.Seeders
 
             foreach (var hotel in hotels)
             {
-                for (int i = 0; i < 30; i++)
+                for (int i = 0; i < 45; i++)
                 {
                     var room = new Room()
                     {
@@ -172,7 +173,7 @@ namespace HotelManagementAPI.Seeders
                     rooms.Add(room);
                 }               
             }
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 350; i++)
             {
                 var room = new Room()
                 {

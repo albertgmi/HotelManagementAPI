@@ -45,8 +45,6 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
                 .FirstOrDefault(room=>room.Id == roomId);
             if (room is null)
                 throw new NotFoundException($"Room with id {roomId} not found in hotel with id {hotelId}.");
-            if (dto.CheckInDate < DateTime.Now)
-                throw new BadDateException("You can't make reservation in the past.");
             if (dto.CheckInDate >= dto.CheckOutDate)
                 throw new BadDateException("Check-out date must be later than check-in date.");
 
@@ -73,6 +71,30 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             _dbContext.Reservations.Add(reservation);
             _dbContext.SaveChanges();
             return reservationId;
+        }
+        public void Delete(int hotelId, int roomId, int reservationId)
+        {
+            var reservation = GetReservationsFromHotelRoom(hotelId, roomId)
+               .FirstOrDefault(x => x.Id == reservationId);
+            _dbContext.Remove(reservation);
+            _dbContext.SaveChanges();
+        }
+        public void Update(int hotelId, int roomId, int reservationId, UpdateReservationDto dto)
+        {
+            if (dto.CheckInDate < DateTime.Now)
+                throw new BadDateException("You can't make reservation in the past.");
+            var reservation = GetReservationsFromHotelRoom(hotelId, roomId)
+               .FirstOrDefault(x => x.Id == reservationId);
+
+            var isRoomAvailable = !_dbContext.Reservations
+            .Any(reservation => reservation.RoomId == roomId &&
+                                reservation.CheckInDate < dto.CheckOutDate &&
+                                reservation.CheckOutDate > dto.CheckInDate);
+            if (!isRoomAvailable)
+                throw new RoomNotAvailableException("The room is already reserved for the selected dates.");
+            reservation.CheckInDate = dto.CheckInDate;
+            reservation.CheckOutDate= dto.CheckOutDate;
+            _dbContext.SaveChanges();
         }
         private List<Reservation> GetReservationsFromHotelRoom(int hotelId, int roomId)
         {

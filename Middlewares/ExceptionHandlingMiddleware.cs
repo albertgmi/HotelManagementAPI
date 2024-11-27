@@ -30,6 +30,11 @@ namespace HotelManagementAPI.Middlewares
                 context.Response.StatusCode = 404;
                 await context.Response.WriteAsync(roomNotAvailableException.Message);
             }
+            catch (BadRequestException badRequestException)
+            {
+                context.Response.StatusCode = 400;
+                await context.Response.WriteAsync(badRequestException.Message);
+            }
             catch (Exception)
             {
                 context.Response.StatusCode = 500;

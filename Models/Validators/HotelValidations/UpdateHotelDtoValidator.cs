@@ -8,9 +8,9 @@ namespace HotelManagementAPI.Models.Validators.HotelValidations
         public UpdateHotelDtoValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty();
+                .NotEmpty().WithMessage("Name is required.");
             RuleFor(x => x.Description)
-                .NotEmpty();
+                .NotEmpty().WithMessage("Description is required.");
         }
     }
 }

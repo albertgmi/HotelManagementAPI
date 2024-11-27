@@ -1,11 +1,13 @@
 ﻿using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Services.HotelServiceFolder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelManagementAPI.Controllers
 {
     [Route("/api/hotel")]
     [ApiController]
+    [Authorize]
     public class HotelController : ControllerBase
     {
         private readonly IHotelService _hotelService;

@@ -45,8 +45,6 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
                 .FirstOrDefault(room=>room.Id == roomId);
             if (room is null)
                 throw new NotFoundException($"Room with id {roomId} not found in hotel with id {hotelId}.");
-            if (dto.CheckInDate < DateTime.Now)
-                throw new BadDateException("You can't make reservation in the past.");
             if (dto.CheckInDate >= dto.CheckOutDate)
                 throw new BadDateException("Check-out date must be later than check-in date.");
 

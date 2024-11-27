@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HotelManagementAPI.Services.UserServiceFolder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HotelManagementAPI.Entities.Configurations
@@ -14,6 +15,8 @@ namespace HotelManagementAPI.Entities.Configurations
             builder.Property(r => r.Email)
                 .IsRequired();
             builder.Property(r => r.PasswordHash)
+                .IsRequired();
+            builder.Property(r => r.DateOfBirth)
                 .IsRequired();
         }
     }

@@ -1,9 +1,16 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using HotelManagementAPI.Entities;
+using HotelManagementAPI.JWTstuff;
 using HotelManagementAPI.Middlewares;
 using HotelManagementAPI.Models.HotelModels;
+using HotelManagementAPI.Models.ReservationModels;
+using HotelManagementAPI.Models.RoomModels;
+using HotelManagementAPI.Models.UserModels;
 using HotelManagementAPI.Models.Validators.HotelValidations;
+using HotelManagementAPI.Models.Validators.ReservationValidators;
+using HotelManagementAPI.Models.Validators.RoomValidators;
+using HotelManagementAPI.Models.Validators.UserValidators;
 using HotelManagementAPI.Seeders;
 using HotelManagementAPI.Services.HotelServiceFolder;
 using HotelManagementAPI.Services.ReservationServiceFolder;
@@ -13,6 +20,8 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,23 +44,53 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddSwaggerGen();
 
+var authenticationSettings = new AuthenticationSettings();
+builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "Bearer";
+    options.DefaultScheme = "Bearer";
+    options.DefaultChallengeScheme = "Bearer";
+
+}).AddJwtBearer(cfg =>
+{
+    cfg.RequireHttpsMetadata = false;
+    cfg.SaveToken = true;
+    cfg.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidIssuer = authenticationSettings.JwtIssuer,
+        ValidAudience = authenticationSettings.JwtIssuer,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
+    };
+});
+
 // Dependcies injection
 
-builder.Services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddSingleton(authenticationSettings);
+
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
+
 builder.Services.AddScoped<IValidator<CreateHotelDto>, CreateHotelDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateHotelDto>, UpdateHotelDtoValidator>();
+builder.Services.AddScoped<IValidator<CreateReservationDto>, CreateReservationDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateReservationDto>, UpdateReservationDtoValidator>();
+builder.Services.AddScoped<IValidator<CreateRoomDto>, CreateRoomDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateRoomDto>, UpdateRoomDtoValidator>();
+builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 
 
 var app = builder.Build();
 
 app.UseStaticFiles();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseAuthentication();
 
 if (app.Environment.IsDevelopment())
 {

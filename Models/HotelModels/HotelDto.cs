@@ -12,6 +12,7 @@ namespace HotelManagementAPI.Models.HotelModels
         public string City { get; set; }
         public string Street { get; set; }
         public string? PostalCode { get; set; }
+        public string ContactNumber { get; set; }
         public List<RoomDto> Rooms { get; set; }
     }
 }

@@ -71,8 +71,9 @@ namespace HotelManagementAPI.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Rating = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     NumberOfRatings = table.Column<int>(type: "int", nullable: false),
+                    ContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AddressId = table.Column<int>(type: "int", nullable: false),
-                    ManagedById = table.Column<int>(type: "int", nullable: false)
+                    CreatedById = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -83,8 +84,8 @@ namespace HotelManagementAPI.Migrations
                         principalTable: "Addresses",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Hotels_Users_ManagedById",
-                        column: x => x.ManagedById,
+                        name: "FK_Hotels_Users_CreatedById",
+                        column: x => x.CreatedById,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -150,9 +151,9 @@ namespace HotelManagementAPI.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Hotels_ManagedById",
+                name: "IX_Hotels_CreatedById",
                 table: "Hotels",
-                column: "ManagedById");
+                column: "CreatedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reservations_MadeById",

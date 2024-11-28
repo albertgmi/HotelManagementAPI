@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
 using Bogus;
+using HotelManagementAPI.Authorizations;
+using HotelManagementAPI.Authorizations.HotelAuthorizations;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Exceptions;
 using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Models.UserModels;
 using HotelManagementAPI.Services.UserServiceFolder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HotelManagementAPI.Services.HotelServiceFolder
 {
@@ -14,14 +18,15 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
     {
         private readonly HotelDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
-        Faker faker = new Faker();
 
-        public HotelService(HotelDbContext dbContext, IMapper mapper, IUserContextService userContextService)
+        public HotelService(HotelDbContext dbContext, IMapper mapper, IUserContextService userContextService, IAuthorizationService authorizationService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _userContextService = userContextService;
+            _authorizationService = authorizationService;
         }
 
         public List<HotelDto> GetAll()
@@ -54,10 +59,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             var hotel = _mapper.Map<Hotel>(dto);
             var hotelId = hotel.Id;
 
-            // To be fixed
-            var users = _dbContext.Users.ToList();
-            var userId = users[faker.Random.Int(1, users.Count() - 1)].Id;
-            hotel.ManagedById = userId;
+            hotel.CreatedById = (int)_userContextService.GetUserId;
 
             _dbContext.Hotels.Add(hotel);
             _dbContext.SaveChanges();
@@ -71,6 +73,9 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 .FirstOrDefault(x=>x.Id==id);
             if (hotel is null)
                 throw new NotFoundException("Hotel not found");
+            var user = _userContextService.User;
+
+            AuthorizedTo(hotel, user, ResourceOperation.Update);
 
             hotel.Name = dto.Name;
             hotel.Description = dto.Description;
@@ -83,27 +88,22 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 .FirstOrDefault(x=>x.Id==id);
             if (hotel is null)
                 throw new NotFoundException("Hotel not found");
+
+            var user = _userContextService.User;
+
+            AuthorizedTo(hotel, user, ResourceOperation.Delete);
+
             _dbContext.Hotels.Remove(hotel);
             _dbContext.SaveChanges();
         }
-        public void AssignManager(int hotelId, int managerId)
-        {
-            var hotel = _dbContext
-                .Hotels
-                .FirstOrDefault(x=>x.Id == hotelId);
-            if (hotel is null)
-                throw new NotFoundException("Hotel not found");
-            hotel.ManagedById = managerId;
-            _dbContext.SaveChanges();
-        }
-        public UserDto GetManager(int hotelId)
+        public UserDto GetOwner(int hotelId)
         {
             var hotel = _dbContext
                 .Hotels
                 .FirstOrDefault(x => x.Id == hotelId);
             if (hotel is null)
                 throw new NotFoundException("Hotel not found");
-            var managerId = hotel.ManagedById;
+            var managerId = hotel.CreatedById;
             var manager = _dbContext
                 .Users
                 .FirstOrDefault(x=>x.Id== managerId);
@@ -136,6 +136,12 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             }
             _dbContext.SaveChanges();
         }
-
+        private void AuthorizedTo(Hotel hotel, ClaimsPrincipal user, ResourceOperation operation)
+        {
+            var authorizationResult = _authorizationService.AuthorizeAsync(user, hotel,
+                new CreatedHotelRequirement(operation)).Result;
+            if (!authorizationResult.Succeeded)
+                throw new ForbidException("Authorization failed");
+        }
     }
 }

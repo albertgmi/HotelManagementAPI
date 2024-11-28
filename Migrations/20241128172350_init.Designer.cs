@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagementAPI.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    [Migration("20241127215114_init")]
+    [Migration("20241128172350_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,11 +59,14 @@ namespace HotelManagementAPI.Migrations
                     b.Property<int>("AddressId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("ContactNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ManagedById")
+                    b.Property<int>("CreatedById")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -80,7 +83,7 @@ namespace HotelManagementAPI.Migrations
                     b.HasIndex("AddressId")
                         .IsUnique();
 
-                    b.HasIndex("ManagedById");
+                    b.HasIndex("CreatedById");
 
                     b.ToTable("Hotels");
                 });
@@ -179,7 +182,8 @@ namespace HotelManagementAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("DateOfBirth")
+                    b.Property<DateTime?>("DateOfBirth")
+                        .IsRequired()
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -216,15 +220,15 @@ namespace HotelManagementAPI.Migrations
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("HotelManagementAPI.Entities.User", "ManagedBy")
+                    b.HasOne("HotelManagementAPI.Entities.User", "CreatedBy")
                         .WithMany("Hotels")
-                        .HasForeignKey("ManagedById")
+                        .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Address");
 
-                    b.Navigation("ManagedBy");
+                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("HotelManagementAPI.Entities.Reservation", b =>

@@ -117,8 +117,9 @@ namespace HotelManagementAPI.Seeders
                     Name = faker.Company.CompanyName(),
                     Description = faker.Lorem.Text(),
                     Rating = faker.Random.Decimal() * 5,
-                    ManagedById = users[faker.Random.Int(0, users.Count() - 1)].Id,
+                    CreatedById = users[faker.Random.Int(0, users.Count() - 1)].Id,
                     AddressId = addresses[faker.Random.Int(0, addresses.Count() - 1)].Id,
+                    ContactNumber = faker.Phone.PhoneNumber("###-###-###"),
                     NumberOfRatings = 0
                 });
             }

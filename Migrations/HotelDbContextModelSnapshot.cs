@@ -149,6 +149,10 @@ namespace HotelManagementAPI.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
 

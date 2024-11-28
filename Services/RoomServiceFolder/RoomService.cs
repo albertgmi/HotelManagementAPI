@@ -52,7 +52,9 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
         public int CreateRoom(int hotelId, CreateRoomDto dto)
         {
             var hotel = GetHotelWithRooms(hotelId);
-      
+            var user = _userContextService.User;
+            AuthorizedTo(hotel, user, ResourceOperation.Create);
+
             var room = _mapper.Map<Room>(dto);
             room.HotelId = hotel.Id;
             _dbContext.Rooms.Add(room);

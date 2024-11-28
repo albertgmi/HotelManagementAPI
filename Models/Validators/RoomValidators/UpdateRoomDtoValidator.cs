@@ -16,6 +16,10 @@ namespace HotelManagementAPI.Models.Validators.RoomValidators
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name is required.");
 
+            RuleFor(x => x.Description)
+                .NotEmpty().WithMessage("Description is required.")
+                .MinimumLength(30).WithMessage("Description must be atleast 30 characters long");
+
             RuleFor(room => room.Type)
                 .NotEmpty().WithMessage("Room type is required.")
                 .Must(type => roomTypes.Contains(type))

@@ -8,7 +8,7 @@ namespace HotelManagementAPI.Authorizations.HotelAuthorizations
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,CreatedHotelRequirement requirement, Hotel resource)
         {
-            if (requirement.Operation == ResourceOperation.Create || requirement.Operation == ResourceOperation.Read)
+            if (requirement.Operation == ResourceOperation.Read)
                 context.Succeed(requirement);
             var userId = int.Parse(context.User.FindFirst(c=>c.Type == ClaimTypes.NameIdentifier).Value);
             if (resource.CreatedById == userId)

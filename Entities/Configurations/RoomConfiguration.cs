@@ -14,6 +14,8 @@ namespace HotelManagementAPI.Entities.Configurations
 
             builder.Property(r => r.Name)
                 .IsRequired();
+            builder.Property(r => r.Description)
+                .IsRequired();
             builder.Property(r => r.Capacity)
                 .IsRequired();
             builder.Property(r => r.PricePerNight)

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagementAPI.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    [Migration("20241128172350_init")]
+    [Migration("20241128235050_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -150,6 +150,10 @@ namespace HotelManagementAPI.Migrations
 
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("HotelId")
                         .HasColumnType("int");

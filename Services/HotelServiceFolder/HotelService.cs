@@ -39,6 +39,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 .ToList();
             if (hotels is null)
                 throw new NotFoundException("Hotel not found");
+
             var hotelDto = _mapper.Map<List<HotelDto>>(hotels);
             return hotelDto;
         }
@@ -51,6 +52,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 .FirstOrDefault(h => h.Id == id);
             if (hotel is null)
                 throw new NotFoundException("Hotel not found");
+
             var hotelDto = _mapper.Map<HotelDto>(hotel);
             return hotelDto;
         }

@@ -5,8 +5,6 @@
         Create,
         Update,
         Delete,
-        Read,
-        GetManager,
-        AddRating
+        Read
     }
 }

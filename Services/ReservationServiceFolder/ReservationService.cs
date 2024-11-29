@@ -1,8 +1,14 @@
 ﻿using AutoMapper;
+using HotelManagementAPI.Authorizations.HotelAuthorizations;
+using HotelManagementAPI.Authorizations;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Exceptions;
 using HotelManagementAPI.Models.ReservationModels;
+using HotelManagementAPI.Services.UserServiceFolder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using HotelManagementAPI.Authorizations.ReservationAuthorization;
 
 namespace HotelManagementAPI.Services.ReservationServiceFolder
 {
@@ -10,11 +16,15 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
     {
         private readonly HotelDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
-        public ReservationService(HotelDbContext dbContext, IMapper mapper)
+        public ReservationService(HotelDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
         public List<ReservationDto> GetAll(int hotelId, int roomId)
         {
@@ -52,21 +62,27 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             .Any(reservation => reservation.RoomId == roomId &&
                                 reservation.CheckInDate < dto.CheckOutDate &&
                                 reservation.CheckOutDate > dto.CheckInDate);
+
             if (!isRoomAvailable)
                 throw new RoomNotAvailableException("The room is not available for the selected dates.");
 
             var days = (dto.CheckOutDate - dto.CheckInDate).Days;
-            var totalPrice = room.PricePerNight*days;
+            var totalPrice = room.PricePerNight*days;          
 
             var reservation = new Reservation()
             {
                 CheckInDate = dto.CheckInDate,
                 CheckOutDate = dto.CheckOutDate,
-                MadeById = dto.MadeById,
                 RoomId = roomId,
                 TotalPrice = totalPrice,
                 Status = "Pending"
             };
+
+            reservation.MadeById = (int)_userContextService.GetUserId;
+
+            var user = _userContextService.User;
+            AuthorizedTo(reservation, user, ResourceOperation.Create);
+
             var reservationId = reservation.Id;
             _dbContext.Reservations.Add(reservation);
             _dbContext.SaveChanges();
@@ -76,6 +92,8 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
         {
             var reservation = GetReservationsFromHotelRoom(hotelId, roomId)
                .FirstOrDefault(x => x.Id == reservationId);
+            var user = _userContextService.User;
+            AuthorizedTo(reservation, user, ResourceOperation.Delete);
             _dbContext.Remove(reservation);
             _dbContext.SaveChanges();
         }
@@ -85,6 +103,9 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
                 throw new BadDateException("You can't make reservation in the past.");
             var reservation = GetReservationsFromHotelRoom(hotelId, roomId)
                .FirstOrDefault(x => x.Id == reservationId);
+
+            var user = _userContextService.User;
+            AuthorizedTo(reservation, user, ResourceOperation.Create);
 
             var isRoomAvailable = !_dbContext.Reservations
             .Any(reservation => reservation.RoomId == roomId &&
@@ -116,6 +137,13 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
                 .Reservations
                 .ToList();
             return reservations;
+        }
+        private void AuthorizedTo(Reservation reservation, ClaimsPrincipal user, ResourceOperation operation)
+        {
+            var authorizationResult = _authorizationService.AuthorizeAsync(user, reservation,
+                new CreatedReservationRequirement(operation)).Result;
+            if (!authorizationResult.Succeeded)
+                throw new ForbidException("Authorization failed");
         }
     }
 }

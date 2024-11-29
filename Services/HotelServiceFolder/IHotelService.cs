@@ -11,8 +11,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
         int Create(CreateHotelDto dto);
         void Update(int id, UpdateHotelDto dto);
         void Delete(int id);
-        void AssignManager(int hotelId, int managerId);
-        UserDto GetManager(int hotelId);
+        UserDto GetOwner(int hotelId);
         void AddRating(int hotelId, decimal rating);
     }
 }

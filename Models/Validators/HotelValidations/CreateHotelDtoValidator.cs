@@ -15,6 +15,9 @@ namespace HotelManagementAPI.Models.Validators.HotelValidations
                 .NotEmpty().WithMessage("City is required.");
             RuleFor(x => x.Street)
                 .NotEmpty().WithMessage("Street is required.");
+            RuleFor(x => x.ContactNumber)
+                .NotEmpty().WithMessage("Contact number is required.")
+                .Matches(@"^\d{3}-\d{3}-\d{3}$").WithMessage("Phone number must by in this pattern: ###-###-###.");
         }
     }
 }

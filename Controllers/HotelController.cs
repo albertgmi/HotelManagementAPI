@@ -2,6 +2,7 @@
 using HotelManagementAPI.Services.HotelServiceFolder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HotelManagementAPI.Controllers
 {
@@ -16,20 +17,24 @@ namespace HotelManagementAPI.Controllers
             _hotelService = hotelService;
         }
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult GetAll()
         {
             var result = _hotelService.GetAll();
             return Ok(result);
         }
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public ActionResult GetById([FromRoute]int id)
         {
             var result = _hotelService.GetById(id);
             return Ok(result);
         }
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public ActionResult Create([FromBody] CreateHotelDto hotelDto)
         {
+            var managedById = int.Parse(User.FindFirst(c=>c.Type == ClaimTypes.NameIdentifier).Value);
             var hotelId = _hotelService.Create(hotelDto);
             return Created($"Hotel with id: {hotelId} created", null);
         }
@@ -45,19 +50,15 @@ namespace HotelManagementAPI.Controllers
             _hotelService.Delete(hotelId);
             return NoContent();
         }
-        [HttpPost("{hotelId}/assign-manager")]
-        public ActionResult AssignManager([FromRoute] int hotelId, [FromQuery] int userId)
+        [HttpGet("{hotelId}/owner")]
+        [AllowAnonymous]
+        public ActionResult GetOwner([FromRoute] int hotelId)
         {
-            _hotelService.AssignManager(hotelId, userId);
-            return Ok();
-        }
-        [HttpGet("{hotelId}/manager")]
-        public ActionResult GetManager([FromRoute] int hotelId)
-        {
-            var manager = _hotelService.GetManager(hotelId);
-            return Ok(manager);
+            var owner = _hotelService.GetOwner(hotelId);
+            return Ok(owner);
         }
         [HttpPost("{hotelId}/add-rating")]
+        [Authorize]
         public ActionResult AddRating([FromRoute]int hotelId, [FromQuery]decimal rating)
         {
             _hotelService.AddRating(hotelId, rating);

@@ -22,6 +22,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using HotelManagementAPI.Authorizations.HotelAuthorizations;
+using Microsoft.AspNetCore.Authorization;
+using HotelManagementAPI.Authorizations.ReservationAuthorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,6 +87,8 @@ builder.Services.AddScoped<IValidator<UpdateReservationDto>, UpdateReservationDt
 builder.Services.AddScoped<IValidator<CreateRoomDto>, CreateRoomDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateRoomDto>, UpdateRoomDtoValidator>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+builder.Services.AddScoped<IAuthorizationHandler, CreatedHotelRequirementHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, CreatedReservationRequirementHandler>();
 
 
 var app = builder.Build();

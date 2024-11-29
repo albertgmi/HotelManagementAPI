@@ -17,12 +17,14 @@ namespace HotelManagementAPI.Controllers
             _reservationService = reservationService;
         }
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult GetAll([FromRoute] int hotelId, [FromRoute] int roomId) 
         {
             var reservations = _reservationService.GetAll(hotelId, roomId);
             return Ok(reservations);
         }
         [HttpGet("{reservationId}")]
+        [AllowAnonymous]
         public ActionResult GetById([FromRoute] int hotelId, [FromRoute] int roomId, [FromRoute] int reservationId)
         {
             var reservation = _reservationService.GetById(hotelId, roomId, reservationId);

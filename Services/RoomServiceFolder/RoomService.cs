@@ -1,10 +1,15 @@
 ﻿using AutoMapper;
+using HotelManagementAPI.Authorizations.HotelAuthorizations;
+using HotelManagementAPI.Authorizations;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Exceptions;
 using HotelManagementAPI.Models.RoomModels;
+using HotelManagementAPI.Services.UserServiceFolder;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Security.Claims;
 
 namespace HotelManagementAPI.Services.RoomServiceFolder
 {
@@ -12,11 +17,15 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
     {
         private readonly HotelDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
-        public RoomService(HotelDbContext dbContext, IMapper mapper)
+        public RoomService(HotelDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
 
         public List<RoomDto> GetAll(int hotelId)
@@ -43,7 +52,9 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
         public int CreateRoom(int hotelId, CreateRoomDto dto)
         {
             var hotel = GetHotelWithRooms(hotelId);
-      
+            var user = _userContextService.User;
+            AuthorizedTo(hotel, user, ResourceOperation.Create);
+
             var room = _mapper.Map<Room>(dto);
             room.HotelId = hotel.Id;
             _dbContext.Rooms.Add(room);
@@ -51,8 +62,12 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
             return room.Id;
         }
         public void UpdateRoom(int hotelId, int roomId, UpdateRoomDto dto)
-        {
+        {          
             var hotel = GetHotelWithRooms(hotelId);
+            var user = _userContextService.User;
+
+            AuthorizedTo(hotel, user, ResourceOperation.Update);
+
             var room = GetRoomFromHotel(hotel, roomId);
 
             room.Name = dto.Name;
@@ -63,6 +78,9 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
         public void DeleteRoomById(int hotelId, int roomId)
         {
             var hotel = GetHotelWithRooms(hotelId);
+            var user = _userContextService.User;
+            AuthorizedTo(hotel, user, ResourceOperation.Delete);
+
             var room = GetRoomFromHotel(hotel, roomId);
 
             _dbContext.Rooms.Remove(room);
@@ -71,6 +89,9 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
         public void DeleteAllRooms(int hotelId)
         {
             var hotel = GetHotelWithRooms(hotelId);
+            var user = _userContextService.User;
+            AuthorizedTo(hotel, user, ResourceOperation.Delete);
+
             var rooms = hotel
                 .Rooms
                 .ToList();
@@ -118,6 +139,13 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
             if (room is null)
                 throw new NotFoundException($"Room with id {roomId} was not found in hotel with id {hotelId}");
             return room;
+        }
+        private void AuthorizedTo(Hotel hotel,ClaimsPrincipal user, ResourceOperation operation)
+        {
+            var authorizationResult = _authorizationService.AuthorizeAsync(user, hotel,
+                new CreatedHotelRequirement(operation)).Result;
+            if (!authorizationResult.Succeeded)
+                throw new ForbidException("Authorization failed");
         }
     }
 }

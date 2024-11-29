@@ -12,9 +12,9 @@ namespace HotelManagementAPI.Entities.Configurations
                 .HasForeignKey<Hotel>(a => a.AddressId)
                 .OnDelete(DeleteBehavior.ClientCascade);
 
-            builder.HasOne(h => h.ManagedBy)
+            builder.HasOne(h => h.CreatedBy)
                  .WithMany(u => u.Hotels)
-                 .HasForeignKey(hfk => hfk.ManagedById)
+                 .HasForeignKey(hfk => hfk.CreatedById)
                  .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(h => h.Rooms)

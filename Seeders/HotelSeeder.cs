@@ -110,15 +110,16 @@ namespace HotelManagementAPI.Seeders
         private List<Hotel> CreateHotels(List<User> users, List<Entities.Address> addresses)
         {
             var hotels = new List<Hotel>();
-            for (int i = 0; i < 400; i++)
+            for (int i = 0; i < 600; i++)
             {
                 hotels.Add(new Hotel()
                 {
                     Name = faker.Company.CompanyName(),
                     Description = faker.Lorem.Text(),
                     Rating = faker.Random.Decimal() * 5,
-                    ManagedById = users[faker.Random.Int(0, users.Count() - 1)].Id,
+                    CreatedById = users[faker.Random.Int(0, users.Count() - 1)].Id,
                     AddressId = addresses[faker.Random.Int(0, addresses.Count() - 1)].Id,
+                    ContactNumber = faker.Phone.PhoneNumber("###-###-###"),
                     NumberOfRatings = 0
                 });
             }
@@ -162,6 +163,7 @@ namespace HotelManagementAPI.Seeders
                     var room = new Room()
                     {
                         Name = $"{faker.Address.City()} {faker.Random.Word()} Room",
+                        Description = faker.Lorem.Text(),
                         Type = roomTypes[faker.Random.Int(0, roomTypes.Length - 1)],
                         Capacity = faker.Random.Int(1, 10),
                         PricePerNight = faker.Random.Decimal() * 25,
@@ -178,6 +180,7 @@ namespace HotelManagementAPI.Seeders
                 var room = new Room()
                 {
                     Name = $"{faker.Address.City()} {faker.Random.Word()} Room",
+                    Description = faker.Lorem.Text(),
                     Type = roomTypes[faker.Random.Int(0, roomTypes.Length - 1)],
                     Capacity = faker.Random.Int(1, 10),
                     PricePerNight = faker.Random.Decimal() * 25,

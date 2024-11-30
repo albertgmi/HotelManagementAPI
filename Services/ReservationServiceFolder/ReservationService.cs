@@ -44,7 +44,7 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             var reservationDto = _mapper.Map<ReservationDto>(reservation);
             return reservationDto;
         }
-        public async Task<int> Create(int hotelId, int roomId, CreateReservationDto dto)
+        public int Create(int hotelId, int roomId, CreateReservationDto dto)
         {
             if (dto.CheckInDate >= dto.CheckOutDate)
                 throw new BadDateException("Check-out date must be later than check-in date.");
@@ -95,7 +95,7 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             if (user is null)
                 throw new NotFoundException("User not found");
 
-            await _emailService.SendEmailAsync(hotel, room, userFromDb, reservation);
+            _emailService.SendEmail(hotel, room, userFromDb, reservation);
             var reservationId = reservation.Id;
 
             _dbContext.Reservations.Add(reservation);

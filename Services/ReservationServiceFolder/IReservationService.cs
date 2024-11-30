@@ -6,7 +6,7 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
     {
         List<ReservationDto> GetAll(int hotelId, int roomId);
         ReservationDto GetById(int hotelId, int roomId, int reservationId);
-        Task<int> Create(int hotelId, int roomId, CreateReservationDto dto);
+        int Create(int hotelId, int roomId, CreateReservationDto dto);
         void Delete(int hotelId, int roomId, int reservationId);
         void Update(int hotelId, int roomId, int reservationId, UpdateReservationDto dto);
     }

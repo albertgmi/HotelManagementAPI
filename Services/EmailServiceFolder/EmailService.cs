@@ -23,7 +23,7 @@ namespace HotelManagementAPI.Services.EmailServiceFolder
             _smtpPassword = Environment.GetEnvironmentVariable("SmtpPassword", EnvironmentVariableTarget.Machine);
             _fromEmail = emailSettings["FromEmail"];
         }
-        public async Task SendEmailAsync(Hotel hotel, Room room, User user, Reservation reservation)
+        public void SendEmail(Hotel hotel, Room room, User user, Reservation reservation)
         {
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse(_fromEmail));
@@ -46,13 +46,13 @@ namespace HotelManagementAPI.Services.EmailServiceFolder
             using var smtp = new SmtpClient();
             try
             {
-                await smtp.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
-                await smtp.AuthenticateAsync(_smtpUser, _smtpPassword);
-                await smtp.SendAsync(email);
+                smtp.Connect(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
+                smtp.Authenticate(_smtpUser, _smtpPassword);
+                smtp.Send(email);
             }
             finally
             {
-                await smtp.DisconnectAsync(true);
+                smtp.Disconnect(true);
             }
         }
     }

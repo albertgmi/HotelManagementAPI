@@ -25,8 +25,10 @@ using System.Text;
 using HotelManagementAPI.Authorizations.HotelAuthorizations;
 using Microsoft.AspNetCore.Authorization;
 using HotelManagementAPI.Authorizations.ReservationAuthorization;
+using HotelManagementAPI.Services.EmailServiceFolder;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 // Entity Framework stuff
 
@@ -76,6 +78,7 @@ builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSingleton(authenticationSettings);
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();

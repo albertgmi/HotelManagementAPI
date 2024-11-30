@@ -15,8 +15,6 @@ namespace HotelManagementAPI.Models.Validators.UserValidators
                 .MinimumLength(6).WithMessage("Password must be atleast 6 characters long.");
             RuleFor(x => x.ConfirmPassword)
                 .Equal(e => e.Password).WithMessage("Passwords are not the same.");
-            RuleFor(x => x.RoleId)
-                .Must(roleId => roleId == 1 || roleId == 2 || roleId == 3).WithMessage("Role id must be 1, 2, or 3.");
             RuleFor(x => x.Email)
                 .Custom((value, context) =>
                 {

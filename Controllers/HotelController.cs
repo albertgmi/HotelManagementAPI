@@ -34,7 +34,6 @@ namespace HotelManagementAPI.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult Create([FromBody] CreateHotelDto hotelDto)
         {
-            var managedById = int.Parse(User.FindFirst(c=>c.Type == ClaimTypes.NameIdentifier).Value);
             var hotelId = _hotelService.Create(hotelDto);
             return Created($"Hotel with id: {hotelId} created", null);
         }

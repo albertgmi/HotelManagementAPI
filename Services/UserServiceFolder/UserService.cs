@@ -36,7 +36,7 @@ namespace HotelManagementAPI.Services.UserServiceFolder
                 LastName = registerUserDto.LastName,
                 Email = registerUserDto.Email,
                 DateOfBirth = registerUserDto.DateOfBirth,
-                RoleId = registerUserDto.RoleId,
+                RoleId = 1
             };
             var passwordHashed = _passwordHasher.HashPassword(user, registerUserDto.Password);
             user.PasswordHash = passwordHashed;

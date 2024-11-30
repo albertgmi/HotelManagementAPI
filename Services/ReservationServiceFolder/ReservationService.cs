@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using HotelManagementAPI.Authorizations.ReservationAuthorization;
+using HotelManagementAPI.Services.EmailServiceFolder;
 
 namespace HotelManagementAPI.Services.ReservationServiceFolder
 {
@@ -18,13 +19,16 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
         private readonly IMapper _mapper;
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
+        private readonly IEmailService _emailService;
 
-        public ReservationService(HotelDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, IUserContextService userContextService)
+        public ReservationService(HotelDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, 
+            IUserContextService userContextService, IEmailService emailService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _authorizationService = authorizationService;
             _userContextService = userContextService;
+            _emailService = emailService;
         }
         public List<ReservationDto> GetAll(int hotelId, int roomId)
         {
@@ -40,8 +44,11 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             var reservationDto = _mapper.Map<ReservationDto>(reservation);
             return reservationDto;
         }
-        public int Create(int hotelId, int roomId, CreateReservationDto dto)
+        public async Task<int> Create(int hotelId, int roomId, CreateReservationDto dto)
         {
+            if (dto.CheckInDate >= dto.CheckOutDate)
+                throw new BadDateException("Check-out date must be later than check-in date.");
+
             var hotel = _dbContext
                 .Hotels
                 .Include(h=>h.Rooms)
@@ -55,14 +62,11 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
                 .FirstOrDefault(room=>room.Id == roomId);
             if (room is null)
                 throw new NotFoundException($"Room with id {roomId} not found in hotel with id {hotelId}.");
-            if (dto.CheckInDate >= dto.CheckOutDate)
-                throw new BadDateException("Check-out date must be later than check-in date.");
 
             var isRoomAvailable = !_dbContext.Reservations
             .Any(reservation => reservation.RoomId == roomId &&
                                 reservation.CheckInDate < dto.CheckOutDate &&
                                 reservation.CheckOutDate > dto.CheckInDate);
-
             if (!isRoomAvailable)
                 throw new RoomNotAvailableException("The room is not available for the selected dates.");
 
@@ -83,7 +87,17 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             var user = _userContextService.User;
             AuthorizedTo(reservation, user, ResourceOperation.Create);
 
+            var userId = _userContextService.GetUserId;
+            var userFromDb = _dbContext
+                .Users
+                .FirstOrDefault(x=>x.Id == userId);
+
+            if (user is null)
+                throw new NotFoundException("User not found");
+
+            await _emailService.SendEmailAsync(hotel, room, userFromDb, reservation);
             var reservationId = reservation.Id;
+
             _dbContext.Reservations.Add(reservation);
             _dbContext.SaveChanges();
             return reservationId;
@@ -92,8 +106,10 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
         {
             var reservation = GetReservationsFromHotelRoom(hotelId, roomId)
                .FirstOrDefault(x => x.Id == reservationId);
+
             var user = _userContextService.User;
             AuthorizedTo(reservation, user, ResourceOperation.Delete);
+
             _dbContext.Remove(reservation);
             _dbContext.SaveChanges();
         }

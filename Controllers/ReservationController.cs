@@ -34,7 +34,7 @@ namespace HotelManagementAPI.Controllers
         public ActionResult Create([FromRoute] int hotelId, [FromRoute] int roomId, [FromBody] CreateReservationDto createReservationDto)
         {
             var reservationId = _reservationService.Create(hotelId, roomId, createReservationDto);
-            return Ok($"Reservation with id {reservationId} was made for room with id {roomId} in hotel {hotelId}");
+            return Ok($"Reservation was made for room with id {roomId} in hotel with id {hotelId}");
         }
         [HttpDelete("{reservationId}")]
         public ActionResult Delete([FromRoute] int hotelId, [FromRoute] int roomId, [FromRoute] int reservationId)

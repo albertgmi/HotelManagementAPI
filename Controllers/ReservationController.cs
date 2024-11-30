@@ -31,9 +31,9 @@ namespace HotelManagementAPI.Controllers
             return Ok(reservation);
         }
         [HttpPost]
-        public ActionResult Create([FromRoute] int hotelId, [FromRoute] int roomId, [FromBody] CreateReservationDto createReservationDto)
+        public async Task<ActionResult> Create([FromRoute] int hotelId, [FromRoute] int roomId, [FromBody] CreateReservationDto createReservationDto)
         {
-            var reservationId = _reservationService.Create(hotelId, roomId, createReservationDto);
+            var reservationId = await _reservationService.CreateAsync(hotelId, roomId, createReservationDto);
             return Ok($"Reservation was made for room with id {roomId} in hotel with id {hotelId}");
         }
         [HttpDelete("{reservationId}")]

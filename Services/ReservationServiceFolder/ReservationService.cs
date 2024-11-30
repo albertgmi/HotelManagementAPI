@@ -44,34 +44,34 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             var reservationDto = _mapper.Map<ReservationDto>(reservation);
             return reservationDto;
         }
-        public int Create(int hotelId, int roomId, CreateReservationDto dto)
+        public async Task<int> CreateAsync(int hotelId, int roomId, CreateReservationDto dto)
         {
             if (dto.CheckInDate >= dto.CheckOutDate)
                 throw new BadDateException("Check-out date must be later than check-in date.");
 
-            var hotel = _dbContext
+            var hotel = await _dbContext
                 .Hotels
-                .Include(h=>h.Rooms)
-                .ThenInclude(x=>x.Reservations)
-                .FirstOrDefault(x=>x.Id == hotelId);
+                .Include(h => h.Rooms)
+                .ThenInclude(x => x.Reservations)
+                .FirstOrDefaultAsync(x => x.Id == hotelId);
             if (hotel is null)
                 throw new NotFoundException("Hotel was not found");
 
             var room = hotel
                 .Rooms
-                .FirstOrDefault(room=>room.Id == roomId);
+                .FirstOrDefault(room => room.Id == roomId);
             if (room is null)
                 throw new NotFoundException($"Room with id {roomId} not found in hotel with id {hotelId}.");
 
-            var isRoomAvailable = !_dbContext.Reservations
-            .Any(reservation => reservation.RoomId == roomId &&
-                                reservation.CheckInDate < dto.CheckOutDate &&
-                                reservation.CheckOutDate > dto.CheckInDate);
+            var isRoomAvailable = !await _dbContext.Reservations
+                .AnyAsync(reservation => reservation.RoomId == roomId &&
+                                         reservation.CheckInDate < dto.CheckOutDate &&
+                                         reservation.CheckOutDate > dto.CheckInDate);
             if (!isRoomAvailable)
                 throw new RoomNotAvailableException("The room is not available for the selected dates.");
 
             var days = (dto.CheckOutDate - dto.CheckInDate).Days;
-            var totalPrice = room.PricePerNight*days;          
+            var totalPrice = room.PricePerNight * days;
 
             var reservation = new Reservation()
             {
@@ -88,20 +88,20 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             AuthorizedTo(reservation, user, ResourceOperation.Create);
 
             var userId = _userContextService.GetUserId;
-            var userFromDb = _dbContext
+            var userFromDb = await _dbContext
                 .Users
-                .FirstOrDefault(x=>x.Id == userId);
+                .FirstOrDefaultAsync(x => x.Id == userId);
 
-            if (user is null)
+            if (userFromDb is null)
                 throw new NotFoundException("User not found");
 
-            _emailService.SendEmail(hotel, room, userFromDb, reservation);
-            var reservationId = reservation.Id;
-
+            await _emailService.SendEmailAsync(hotel, room, userFromDb, reservation);
             _dbContext.Reservations.Add(reservation);
-            _dbContext.SaveChanges();
-            return reservationId;
+            await _dbContext.SaveChangesAsync();
+
+            return reservation.Id;
         }
+
         public void Delete(int hotelId, int roomId, int reservationId)
         {
             var reservation = GetReservationsFromHotelRoom(hotelId, roomId)

@@ -23,7 +23,7 @@ namespace HotelManagementAPI.Services.EmailServiceFolder
             _smtpPassword = Environment.GetEnvironmentVariable("SmtpPassword", EnvironmentVariableTarget.Machine);
             _fromEmail = emailSettings["FromEmail"];
         }
-        public void SendEmail(Hotel hotel, Room room, User user, Reservation reservation)
+        public async Task SendEmailAsync(Hotel hotel, Room room, User user, Reservation reservation)
         {
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse(_fromEmail));
@@ -32,27 +32,26 @@ namespace HotelManagementAPI.Services.EmailServiceFolder
             email.Body = new TextPart("plain")
             {
                 Text = $"Dear {user.FirstName},\n\n" +
-               $"Your reservation for room {room.Name} in hotel {hotel.Name} has been successfully created.\n\n" +
-               $"Check-in Date: {reservation.CheckInDate:yyyy-MM-dd}\n" +
-               $"Check-out Date: {reservation.CheckOutDate:yyyy-MM-dd}\n" +
-               $"Total Price: {reservation.TotalPrice} PLN\n\n" +
-               $"To secure your reservation, please ensure that the total amount is paid before your check-in date.\n" +
-               $"Thank you for choosing us! We look forward to welcoming you at {hotel.Name}.\n" +
-               $"If you have any questions or need further assistance, feel free to contact us.\n\n" +
-               $"Best regards,\n" +
-               $"The {hotel.Name} Team"
+                       $"Your reservation for room {room.Name} in hotel {hotel.Name} has been successfully created.\n\n" +
+                       $"Check-in Date: {reservation.CheckInDate:yyyy-MM-dd}\n" +
+                       $"Check-out Date: {reservation.CheckOutDate:yyyy-MM-dd}\n" +
+                       $"Total Price: {reservation.TotalPrice} PLN\n\n" +
+                       $"To secure your reservation, please ensure that the total amount is paid before your check-in date.\n" +
+                       $"Thank you for choosing us! We look forward to welcoming you at {hotel.Name}.\n" +
+                       $"If you have any questions or need further assistance, feel free to contact us.\n\n" +
+                       $"Best regards,\n" +
+                       $"The {hotel.Name} Team"
             };
-
             using var smtp = new SmtpClient();
             try
             {
-                smtp.Connect(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
-                smtp.Authenticate(_smtpUser, _smtpPassword);
-                smtp.Send(email);
+                await smtp.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
+                await smtp.AuthenticateAsync(_smtpUser, _smtpPassword);
+                await smtp.SendAsync(email);
             }
             finally
             {
-                smtp.Disconnect(true);
+                await smtp.DisconnectAsync(true);
             }
         }
     }

@@ -63,6 +63,13 @@ namespace HotelManagementAPI.Controllers
             _hotelService.AddRating(hotelId, rating);
             return Ok();
         }
+        [HttpGet("{hotelId}/occupancy-report")]
+        [AllowAnonymous]
+        public ActionResult GetOccupancyReport([FromRoute]int hotelId, [FromQuery]DateTime startDate, [FromQuery]DateTime endDate)
+        {
+            var occupancyReport = _hotelService.GenerateReport(hotelId, startDate, endDate);
+            return Ok(occupancyReport);
+        }
 
     }
 }

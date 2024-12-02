@@ -5,7 +5,9 @@ using HotelManagementAPI.Authorizations.HotelAuthorizations;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Exceptions;
 using HotelManagementAPI.Models.HotelModels;
+using HotelManagementAPI.Models.ReportModels;
 using HotelManagementAPI.Models.UserModels;
+using HotelManagementAPI.Services.ReportServiceFolder;
 using HotelManagementAPI.Services.UserServiceFolder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,13 +22,15 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
         private readonly IMapper _mapper;
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
+        private readonly IReportService _reportService;
 
-        public HotelService(HotelDbContext dbContext, IMapper mapper, IUserContextService userContextService, IAuthorizationService authorizationService)
+        public HotelService(HotelDbContext dbContext, IMapper mapper, IUserContextService userContextService, IAuthorizationService authorizationService, IReportService reportService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _userContextService = userContextService;
             _authorizationService = authorizationService;
+            _reportService = reportService;
         }
 
         public List<HotelDto> GetAll()
@@ -137,6 +141,22 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 hotel.Rating = (hotel.Rating * (hotel.NumberOfRatings - 1) + rating) / hotel.NumberOfRatings;
             }
             _dbContext.SaveChanges();
+        }
+        public OccupancyReport GenerateReport(int hotelId, DateTime startDate, DateTime endDate)
+        {
+            var hotel = _dbContext
+                .Hotels
+                .Include(x => x.Rooms)
+                .ThenInclude(x => x.Reservations)
+                .FirstOrDefault(x => x.Id == hotelId);
+            if (hotel is null)
+                throw new NotFoundException("Hotel not found");
+
+            var user = _userContextService.User;
+            //AuthorizedTo(hotel, user, ResourceOperation.GetReport);
+
+            var report = _reportService.GenerateOccupancyRaport(hotel, startDate, endDate);
+            return report;
         }
         private void AuthorizedTo(Hotel hotel, ClaimsPrincipal user, ResourceOperation operation)
         {

@@ -26,6 +26,7 @@ using HotelManagementAPI.Authorizations.HotelAuthorizations;
 using Microsoft.AspNetCore.Authorization;
 using HotelManagementAPI.Authorizations.ReservationAuthorization;
 using HotelManagementAPI.Services.EmailServiceFolder;
+using HotelManagementAPI.Services.ReportServiceFolder;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -79,6 +80,7 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddSingleton(authenticationSettings);
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();

@@ -49,11 +49,11 @@ namespace HotelManagementAPI.Services.ReservationServiceFolder
             if (dto.CheckInDate >= dto.CheckOutDate)
                 throw new BadDateException("Check-out date must be later than check-in date.");
 
-            var hotel = await _dbContext
+            var hotel = _dbContext
                 .Hotels
                 .Include(h => h.Rooms)
                 .ThenInclude(x => x.Reservations)
-                .FirstOrDefaultAsync(x => x.Id == hotelId);
+                .FirstOrDefault(x => x.Id == hotelId);
             if (hotel is null)
                 throw new NotFoundException("Hotel was not found");
 

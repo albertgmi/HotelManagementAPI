@@ -65,11 +65,17 @@ namespace HotelManagementAPI.Controllers
             return Ok();
         }
         [HttpGet("{hotelId}/generate-report")]
-        [AllowAnonymous]
         public ActionResult GetReport([FromRoute]int hotelId, [FromQuery]DateTime startDate, [FromQuery]DateTime endDate)
         {
             var fullReport = _hotelService.GenerateReport(hotelId, startDate, endDate);
             return File(fullReport, "application/pdf", $"HotelReport_hotelId_{hotelId}_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+        }
+        [HttpPost("{hotelId}/photo")]
+        [Authorize(Roles ="Admin,Manager")]
+        public ActionResult UploadImage([FromRoute]int hotelId, IFormFile file)
+        {
+            var url = _hotelService.UploadHotelImage(hotelId, file);
+            return Created($"New photo with url: {url} has been added", null);
         }
 
     }

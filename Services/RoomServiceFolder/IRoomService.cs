@@ -12,5 +12,6 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
         void DeleteRoomById(int hotelId, int roomId);
         void DeleteAllRooms(int hotelId);
         List<RoomDto> GetAvailableRooms(int hotelId, DateTime from, DateTime? to);
+        string UploadRoomImage(int hotelId, int roomId, IFormFile file);
     }
 }

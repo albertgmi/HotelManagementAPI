@@ -5,6 +5,7 @@ using HotelManagementAPI.Entities;
 using HotelManagementAPI.Exceptions;
 using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Models.UserModels;
+using HotelManagementAPI.Services.FileService;
 using HotelManagementAPI.Services.ReportServiceFolder;
 using HotelManagementAPI.Services.UserServiceFolder;
 using Microsoft.AspNetCore.Authorization;
@@ -22,14 +23,17 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
         private readonly IReportService _reportService;
+        private readonly IFileService _fileService;
 
-        public HotelService(HotelDbContext dbContext, IMapper mapper, IUserContextService userContextService, IAuthorizationService authorizationService, IReportService reportService)
+        public HotelService(HotelDbContext dbContext, IMapper mapper, IUserContextService userContextService,
+            IAuthorizationService authorizationService, IReportService reportService, IFileService fileService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _userContextService = userContextService;
             _authorizationService = authorizationService;
             _reportService = reportService;
+            _fileService = fileService;
         }
 
         public List<HotelDto> GetAll()
@@ -124,13 +128,25 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
         {
             var hotel = GetHotelById(hotelId);
             var user = _userContextService.User;
-            //AuthorizedTo(hotel, user, ResourceOperation.GetReport);
+            AuthorizedTo(hotel, user, ResourceOperation.GetReport);
 
             QuestPDF.Settings.License = LicenseType.Community;
             var report = _reportService.GenerateFullReport(hotel, startDate, endDate);
             var pdf = report.GeneratePdf();
             return pdf;
         }
+        public string UploadHotelImage(int hotelId,IFormFile file)
+        {
+            var hotel = _dbContext
+                .Hotels
+                .FirstOrDefault(x => x.Id == hotelId);
+            if (hotel is null)
+                throw new NotFoundException("Hotel not found");
+
+            var url = _fileService.UploadImage(hotelId, null, file);
+            _fileService.AddImageToHotel(hotelId, url);
+            return url;
+        }  
         private void AuthorizedTo(Hotel hotel, ClaimsPrincipal user, ResourceOperation operation)
         {
             var authorizationResult = _authorizationService.AuthorizeAsync(user, hotel,

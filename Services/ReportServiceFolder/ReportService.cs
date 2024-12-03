@@ -79,6 +79,9 @@ namespace HotelManagementAPI.Services.ReportServiceFolder
         }
         private OccupancyReport GenerateOccupancyReport(Hotel hotel, DateTime startDate, DateTime endDate)
         {
+            if (startDate > endDate)
+                throw new BadDateException("The start date cannot be later than the end date.");
+
             var totalRooms = GetTotalNumberOfRooms(hotel);
             var hotelRoomIds = GetHotelRoomIds(hotel);
             var occupiedRooms = _dbContext
@@ -104,6 +107,9 @@ namespace HotelManagementAPI.Services.ReportServiceFolder
         }
         private FinancialReport GenerateFinancialReport(Hotel hotel, DateTime startDate, DateTime endDate)
         {
+            if (startDate > endDate)
+                throw new BadDateException("The start date cannot be later than the end date.");
+
             var hotelRoomIds = GetHotelRoomIds(hotel);
 
             var reservations = GetReservationsFromHotel(hotelRoomIds, startDate, endDate);
@@ -131,6 +137,9 @@ namespace HotelManagementAPI.Services.ReportServiceFolder
         }
         private CustomerReport GenerateCustomerReport(Hotel hotel, DateTime startDate, DateTime endDate)
         {
+            if (startDate > endDate)
+                throw new BadDateException("The start date cannot be later than the end date.");
+
             var customers = _dbContext.Users
                 .Include(u => u.Reservations)
                 .ThenInclude(r => r.Room)

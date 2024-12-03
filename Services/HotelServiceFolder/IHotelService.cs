@@ -1,6 +1,6 @@
 ﻿using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Models.UserModels;
-using Microsoft.AspNetCore.Mvc;
+using QuestPDF.Fluent;
 
 namespace HotelManagementAPI.Services.HotelServiceFolder
 {
@@ -13,5 +13,8 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
         void Delete(int id);
         UserDto GetOwner(int hotelId);
         void AddRating(int hotelId, decimal rating);
+        byte[] GenerateReport(int hotelId, DateTime startDate, DateTime endDate);
+        string UploadHotelImage(int hotelId, IFormFile file);
+        void DeleteHotelImage(int imageId);
     }
 }

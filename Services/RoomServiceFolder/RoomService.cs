@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Security.Claims;
+using HotelManagementAPI.Services.FileService;
 
 namespace HotelManagementAPI.Services.RoomServiceFolder
 {
@@ -19,13 +20,14 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
         private readonly IMapper _mapper;
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
-
-        public RoomService(HotelDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, IUserContextService userContextService)
+        private readonly IFileService _fileService;
+        public RoomService(HotelDbContext dbContext, IMapper mapper, IAuthorizationService authorizationService, IUserContextService userContextService, IFileService fileService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _authorizationService = authorizationService;
             _userContextService = userContextService;
+            _fileService = fileService;
         }
 
         public List<RoomDto> GetAll(int hotelId)
@@ -118,6 +120,32 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
                 throw new NotFoundException($"Hotel with Id: {hotelId} has no available rooms in the specified date range");
 
             return _mapper.Map<List<RoomDto>>(availableRooms);
+        }
+        public string UploadRoomImage(int hotelId, int roomId, IFormFile file)
+        {
+            var hotel = _dbContext
+                .Hotels
+                .Include(h=>h.Rooms)
+                .FirstOrDefault(x => x.Id == hotelId);
+            if(hotel is null)
+                throw new NotFoundException("Hotel not found");
+
+            var room = GetRoomFromHotel(hotel, roomId);
+
+            var url = _fileService.UploadImage(hotelId, roomId, file);
+            _fileService.AddImageToRoom(hotelId, roomId, url);
+            return url;
+        }
+        public void DeleteRoomImage(int imageId)
+        {
+            var image = _dbContext
+                .Images
+                .FirstOrDefault(x => x.Id == imageId);
+            if (image is null)
+                throw new NotFoundException("Image not found");
+            var url = image.Url;
+            _fileService.DeleteImage(url);
+            _fileService.DeleteImageFromDb(imageId);
         }
         private Hotel GetHotelWithRooms(int hotelId)
         {

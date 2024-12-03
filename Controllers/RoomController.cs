@@ -61,5 +61,19 @@ namespace HotelManagementAPI.Controllers
             var availableRooms = _roomService.GetAvailableRooms(hotelId, from, to);
             return Ok(availableRooms);
         }
+        [HttpPost("{roomId}/photo")]
+        [Authorize(Roles ="Admin,Manager")]
+        public ActionResult UploadImage([FromRoute] int hotelId,[FromRoute]int roomId, IFormFile file)
+        {
+            var url = _roomService.UploadRoomImage(hotelId, roomId, file);
+            return Created($"New photo with url: {url} has been added", null);
+        }
+        [HttpDelete("{roomId}/photo/{imageId}")]
+        [Authorize(Roles = "Admin,Manager")]
+        public ActionResult DeleteImage([FromRoute] int hotelId, [FromRoute] int roomId, [FromRoute] int imageId)
+        {
+            _roomService.DeleteRoomImage(imageId);
+            return NoContent();
+        }
     }
 }

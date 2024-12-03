@@ -14,5 +14,6 @@
         public int HotelId { get; set; }
         public Hotel Hotel { get; set; }
         public List<Reservation> Reservations { get; set; } = new List<Reservation>();
+        public List<Image> Images { get; set; } = new List<Image>();
     }
 }

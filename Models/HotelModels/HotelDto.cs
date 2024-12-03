@@ -11,7 +11,7 @@ namespace HotelManagementAPI.Models.HotelModels
         public decimal Rating { get; set; }
         public string City { get; set; }
         public string Street { get; set; }
-        public string? PostalCode { get; set; }
+        public string PostalCode { get; set; }
         public string ContactNumber { get; set; }
         public List<RoomDto> Rooms { get; set; }
     }

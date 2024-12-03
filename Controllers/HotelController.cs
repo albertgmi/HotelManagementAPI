@@ -1,8 +1,8 @@
-﻿using HotelManagementAPI.Models.HotelModels;
+﻿using HotelManagementAPI.Entities;
+using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Services.HotelServiceFolder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace HotelManagementAPI.Controllers
 {
@@ -34,7 +34,6 @@ namespace HotelManagementAPI.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult Create([FromBody] CreateHotelDto hotelDto)
         {
-            var managedById = int.Parse(User.FindFirst(c=>c.Type == ClaimTypes.NameIdentifier).Value);
             var hotelId = _hotelService.Create(hotelDto);
             return Created($"Hotel with id: {hotelId} created", null);
         }
@@ -64,6 +63,25 @@ namespace HotelManagementAPI.Controllers
             _hotelService.AddRating(hotelId, rating);
             return Ok();
         }
-
+        [HttpGet("{hotelId}/generate-report")]
+        public ActionResult GetReport([FromRoute]int hotelId, [FromQuery]DateTime startDate, [FromQuery]DateTime endDate)
+        {
+            var fullReport = _hotelService.GenerateReport(hotelId, startDate, endDate);
+            return File(fullReport, "application/pdf", $"HotelReport_hotelId_{hotelId}_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
+        }
+        [HttpPost("{hotelId}/photo")]
+        [Authorize(Roles ="Admin,Manager")]
+        public ActionResult UploadImage([FromRoute]int hotelId, IFormFile file)
+        {
+            var url = _hotelService.UploadHotelImage(hotelId, file);
+            return Created($"New photo with url: {url} has been added", null);
+        }
+        [HttpDelete("{hotelId}/photo/{imageId}")]
+        [Authorize(Roles ="Admin,Manager")]
+        public ActionResult DeleteImage([FromRoute] int hotelId, [FromRoute] int imageId)
+        {
+            _hotelService.DeleteHotelImage(imageId);
+            return NoContent();
+        }
     }
 }

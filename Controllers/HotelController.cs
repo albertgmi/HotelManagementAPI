@@ -3,7 +3,6 @@ using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Services.HotelServiceFolder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace HotelManagementAPI.Controllers
 {
@@ -76,6 +75,13 @@ namespace HotelManagementAPI.Controllers
         {
             var url = _hotelService.UploadHotelImage(hotelId, file);
             return Created($"New photo with url: {url} has been added", null);
+        }
+        [HttpDelete("{hotelId}/photo/{imageId}")]
+        [Authorize(Roles ="Admin,Manager")]
+        public ActionResult DeleteImage([FromRoute] int hotelId, [FromRoute] int imageId)
+        {
+            _hotelService.DeleteHotelImage(imageId);
+            return NoContent();
         }
     }
 }

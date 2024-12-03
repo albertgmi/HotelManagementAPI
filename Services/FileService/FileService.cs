@@ -29,7 +29,7 @@ namespace HotelManagementAPI.Services.FileService
             Directory.CreateDirectory(folderPath);
 
             var uniqueFileName = $"{DateTime.Now.Year}_{DateTime.Now.Month}_{DateTime.Now.Day}" +
-                $"_{fileName}";
+                $"_{DateTime.Now.Hour}_{DateTime.Now.Minute}_{DateTime.Now.Second}_{fileName}";
             var filePath = Path.Combine(folderPath, uniqueFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
@@ -78,6 +78,24 @@ namespace HotelManagementAPI.Services.FileService
                 Url = url
             };
             _dbContext.Images.Add(image);
+            _dbContext.SaveChanges();
+        }
+        public void DeleteImage(string url)
+        {
+            var rootPath = _environment.WebRootPath;
+            var filePath = Path.Combine(rootPath, url.TrimStart('/'));
+
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+        }
+        public void DeleteImageFromDb(int imageId)
+        {
+            var image = _dbContext
+                .Images
+                .FirstOrDefault(x => x.Id == imageId);
+            if (image is null)
+                throw new NotFoundException("Image not found");
+            _dbContext.Images.Remove(image);
             _dbContext.SaveChanges();
         }
     }

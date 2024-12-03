@@ -15,5 +15,6 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
         void AddRating(int hotelId, decimal rating);
         byte[] GenerateReport(int hotelId, DateTime startDate, DateTime endDate);
         string UploadHotelImage(int hotelId, IFormFile file);
+        void DeleteHotelImage(int imageId);
     }
 }

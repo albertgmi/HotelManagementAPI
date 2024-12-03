@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 
 namespace HotelManagementAPI.Services.HotelServiceFolder
 {
@@ -147,6 +148,17 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             _fileService.AddImageToHotel(hotelId, url);
             return url;
         }  
+        public void DeleteHotelImage(int imageId)
+        {
+            var image = _dbContext
+                .Images
+                .FirstOrDefault(x => x.Id == imageId);
+            if (image is null)
+                throw new NotFoundException("Image not found");
+            var url = image.Url;
+            _fileService.DeleteImage(url);
+            _fileService.DeleteImageFromDb(imageId);
+        }
         private void AuthorizedTo(Hotel hotel, ClaimsPrincipal user, ResourceOperation operation)
         {
             var authorizationResult = _authorizationService.AuthorizeAsync(user, hotel,

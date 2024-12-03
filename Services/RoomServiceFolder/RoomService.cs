@@ -135,7 +135,18 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
             var url = _fileService.UploadImage(hotelId, roomId, file);
             _fileService.AddImageToRoom(hotelId, roomId, url);
             return url;
-        }  
+        }
+        public void DeleteRoomImage(int imageId)
+        {
+            var image = _dbContext
+                .Images
+                .FirstOrDefault(x => x.Id == imageId);
+            if (image is null)
+                throw new NotFoundException("Image not found");
+            var url = image.Url;
+            _fileService.DeleteImage(url);
+            _fileService.DeleteImageFromDb(imageId);
+        }
         private Hotel GetHotelWithRooms(int hotelId)
         {
             var hotel = _dbContext

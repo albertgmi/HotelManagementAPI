@@ -77,6 +77,5 @@ namespace HotelManagementAPI.Controllers
             var url = _hotelService.UploadHotelImage(hotelId, file);
             return Created($"New photo with url: {url} has been added", null);
         }
-
     }
 }

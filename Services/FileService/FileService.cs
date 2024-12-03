@@ -29,7 +29,7 @@ namespace HotelManagementAPI.Services.FileService
             Directory.CreateDirectory(folderPath);
 
             var uniqueFileName = $"{DateTime.Now.Year}_{DateTime.Now.Month}_{DateTime.Now.Day}" +
-                $"_{fileName}{fileExtension}";
+                $"_{fileName}";
             var filePath = Path.Combine(folderPath, uniqueFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))

@@ -1,4 +1,5 @@
-﻿using HotelManagementAPI.Models.HotelModels;
+﻿using HotelManagementAPI.Entities;
+using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Services.HotelServiceFolder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -63,12 +64,12 @@ namespace HotelManagementAPI.Controllers
             _hotelService.AddRating(hotelId, rating);
             return Ok();
         }
-        [HttpGet("{hotelId}/occupancy-report")]
+        [HttpGet("{hotelId}/generate-report")]
         [AllowAnonymous]
-        public ActionResult GetOccupancyReport([FromRoute]int hotelId, [FromQuery]DateTime startDate, [FromQuery]DateTime endDate)
+        public ActionResult GetReport([FromRoute]int hotelId, [FromQuery]DateTime startDate, [FromQuery]DateTime endDate)
         {
-            var occupancyReport = _hotelService.GenerateReport(hotelId, startDate, endDate);
-            return Ok(occupancyReport);
+            var fullReport = _hotelService.GenerateReport(hotelId, startDate, endDate);
+            return File(fullReport, "application/pdf", $"HotelReport_hotelId_{hotelId}_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf");
         }
 
     }

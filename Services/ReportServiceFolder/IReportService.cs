@@ -1,10 +1,10 @@
 ﻿using HotelManagementAPI.Entities;
-using HotelManagementAPI.Models.ReportModels;
+using QuestPDF.Fluent;
 
 namespace HotelManagementAPI.Services.ReportServiceFolder
 {
     public interface IReportService
     {
-        OccupancyReport GenerateOccupancyRaport(Hotel hotel, DateTime startDate, DateTime endDate);
+        Document GenerateFullReport(Hotel hotel, DateTime startDate, DateTime endDate);
     }
 }

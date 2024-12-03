@@ -1,17 +1,16 @@
 ﻿using AutoMapper;
-using Bogus;
 using HotelManagementAPI.Authorizations;
 using HotelManagementAPI.Authorizations.HotelAuthorizations;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Exceptions;
 using HotelManagementAPI.Models.HotelModels;
-using HotelManagementAPI.Models.ReportModels;
 using HotelManagementAPI.Models.UserModels;
 using HotelManagementAPI.Services.ReportServiceFolder;
 using HotelManagementAPI.Services.UserServiceFolder;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 using System.Security.Claims;
 
 namespace HotelManagementAPI.Services.HotelServiceFolder
@@ -47,15 +46,9 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             var hotelDto = _mapper.Map<List<HotelDto>>(hotels);
             return hotelDto;
         }
-        public HotelDto GetById(int id)
+        public HotelDto GetById(int hotelId)
         {
-            var hotel = _dbContext
-                .Hotels
-                .Include(h => h.Address)
-                .Include(h => h.Rooms)
-                .FirstOrDefault(h => h.Id == id);
-            if (hotel is null)
-                throw new NotFoundException("Hotel not found");
+            var hotel = GetHotelById(hotelId);
 
             var hotelDto = _mapper.Map<HotelDto>(hotel);
             return hotelDto;
@@ -72,13 +65,10 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
 
             return hotelId;
         }
-        public void Update(int id, UpdateHotelDto dto)
+        public void Update(int hotelId, UpdateHotelDto dto)
         {
-            var hotel = _dbContext
-                .Hotels
-                .FirstOrDefault(x=>x.Id==id);
-            if (hotel is null)
-                throw new NotFoundException("Hotel not found");
+            var hotel = GetOnlyHotelById(hotelId);
+
             var user = _userContextService.User;
 
             AuthorizedTo(hotel, user, ResourceOperation.Update);
@@ -87,13 +77,9 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             hotel.Description = dto.Description;
             _dbContext.SaveChanges();
         }
-        public void Delete(int id)
+        public void Delete(int hotelId)
         {
-            var hotel = _dbContext
-                .Hotels
-                .FirstOrDefault(x=>x.Id==id);
-            if (hotel is null)
-                throw new NotFoundException("Hotel not found");
+            var hotel = GetOnlyHotelById(hotelId);
 
             var user = _userContextService.User;
 
@@ -104,11 +90,8 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
         }
         public UserDto GetOwner(int hotelId)
         {
-            var hotel = _dbContext
-                .Hotels
-                .FirstOrDefault(x => x.Id == hotelId);
-            if (hotel is null)
-                throw new NotFoundException("Hotel not found");
+            var hotel = GetOnlyHotelById(hotelId);
+
             var managerId = hotel.CreatedById;
             var manager = _dbContext
                 .Users
@@ -123,12 +106,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             if (rating < 1 || rating > 5)
                 throw new NotInRangeException("Rating has to be in range 1-5");
 
-            var hotel = _dbContext
-                .Hotels
-                .FirstOrDefault(x => x.Id == hotelId);
-
-            if (hotel is null)
-                throw new NotFoundException("Hotel not found");
+            var hotel = GetOnlyHotelById(hotelId);
 
             if (hotel.NumberOfRatings == 0)
             {
@@ -142,21 +120,16 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             }
             _dbContext.SaveChanges();
         }
-        public OccupancyReport GenerateReport(int hotelId, DateTime startDate, DateTime endDate)
+        public byte[] GenerateReport(int hotelId, DateTime startDate, DateTime endDate)
         {
-            var hotel = _dbContext
-                .Hotels
-                .Include(x => x.Rooms)
-                .ThenInclude(x => x.Reservations)
-                .FirstOrDefault(x => x.Id == hotelId);
-            if (hotel is null)
-                throw new NotFoundException("Hotel not found");
-
+            var hotel = GetHotelById(hotelId);
             var user = _userContextService.User;
             //AuthorizedTo(hotel, user, ResourceOperation.GetReport);
 
-            var report = _reportService.GenerateOccupancyRaport(hotel, startDate, endDate);
-            return report;
+            QuestPDF.Settings.License = LicenseType.Community;
+            var report = _reportService.GenerateFullReport(hotel, startDate, endDate);
+            var pdf = report.GeneratePdf();
+            return pdf;
         }
         private void AuthorizedTo(Hotel hotel, ClaimsPrincipal user, ResourceOperation operation)
         {
@@ -164,6 +137,27 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 new CreatedHotelRequirement(operation)).Result;
             if (!authorizationResult.Succeeded)
                 throw new ForbidException("Authorization failed");
+        }
+        private Hotel GetHotelById(int hotelId)
+        {
+            var hotel = _dbContext
+                .Hotels
+                .Include(x=>x.Address)
+                .Include(x => x.Rooms)
+                .ThenInclude(x => x.Reservations)
+                .FirstOrDefault(x => x.Id == hotelId);
+            if (hotel is null)
+                throw new NotFoundException("Hotel not found");
+            return hotel;
+        }
+        private Hotel GetOnlyHotelById(int hotelId)
+        {
+            var hotel = _dbContext
+                .Hotels
+                .FirstOrDefault(x => x.Id == hotelId);
+            if (hotel is null)
+                throw new NotFoundException("Hotel not found");
+            return hotel;
         }
     }
 }

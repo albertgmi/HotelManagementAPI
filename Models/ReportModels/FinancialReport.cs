@@ -4,8 +4,8 @@
     {
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public decimal TotalRevenue { get; set; }
+        public string TotalRevenue { get; set; }
         public int ReservationCount { get; set; }
-        public decimal AverageRevenuePerReservation { get; set; }
+        public string AverageRevenuePerReservation { get; set; }
     }
 }

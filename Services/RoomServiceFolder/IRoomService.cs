@@ -1,11 +1,12 @@
 ﻿using HotelManagementAPI.Entities;
+using HotelManagementAPI.Models;
 using HotelManagementAPI.Models.RoomModels;
 
 namespace HotelManagementAPI.Services.RoomServiceFolder
 {
     public interface IRoomService
     {
-        List<RoomDto> GetAll(int hotelId);
+        PagedResult<RoomDto> GetAll(int hotelId, RoomQuery query);
         RoomDto GetById(int hotelId, int roomId);
         int CreateRoom(int hotelId, CreateRoomDto dto);
         void UpdateRoom(int hotelId, int roomId, UpdateRoomDto dto);

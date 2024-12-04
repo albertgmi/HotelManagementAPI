@@ -18,9 +18,9 @@ namespace HotelManagementAPI.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult GetAll()
+        public ActionResult GetAll([FromQuery] HotelQuery query)
         {
-            var result = _hotelService.GetAll();
+            var result = _hotelService.GetAll(query);
             return Ok(result);
         }
         [HttpGet("{id}")]

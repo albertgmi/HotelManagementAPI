@@ -3,6 +3,7 @@ using HotelManagementAPI.Authorizations;
 using HotelManagementAPI.Authorizations.HotelAuthorizations;
 using HotelManagementAPI.Entities;
 using HotelManagementAPI.Exceptions;
+using HotelManagementAPI.Models;
 using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Models.UserModels;
 using HotelManagementAPI.Services.FileService;
@@ -10,8 +11,11 @@ using HotelManagementAPI.Services.ReportServiceFolder;
 using HotelManagementAPI.Services.UserServiceFolder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Security.Certificates;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 
@@ -37,19 +41,46 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
             _fileService = fileService;
         }
 
-        public List<HotelDto> GetAll()
+        public PagedResult<HotelDto> GetAll(HotelQuery query)
         {
-            var hotels = _dbContext
+            var baseHotels = _dbContext
                 .Hotels
-                .Include(h=>h.Address)
-                .Include(h=>h.Rooms)
-                .ThenInclude(r=>r.Reservations)
+                .Include(h => h.Address)
+                .Include(h => h.Rooms)
+                .ThenInclude(r => r.Reservations)
+                .Where(x => query.SearchPhrase == null
+                            || (x.Name.ToLower().Contains(query.SearchPhrase.ToLower())
+                            || (x.Description.ToLower().Contains(query.SearchPhrase.ToLower()))));
+
+            if(!query.SortBy.IsNullOrEmpty())
+            {
+                var columnSelector = new Dictionary<string, Expression<Func<Hotel, object>>>
+                {
+                    {nameof(Hotel.Name), x=>x.Name},
+                    {nameof(Hotel.Description), x=>x.Description},
+                    {nameof(Hotel.Rating), x=>x.Rating},
+                    {nameof(Hotel.NumberOfRatings), x=>x.NumberOfRatings}
+                };
+                var selectedColumn = columnSelector[query.SortBy];
+
+                baseHotels = query.SortDirection == SortDirection.ASC 
+                    ? baseHotels.OrderBy(selectedColumn) 
+                    : baseHotels.OrderByDescending(selectedColumn);
+            }
+
+            var hotels = baseHotels
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
                 .ToList();
+
             if (hotels is null)
                 throw new NotFoundException("Hotel not found");
 
+            var baseCount = baseHotels.Count();
             var hotelDto = _mapper.Map<List<HotelDto>>(hotels);
-            return hotelDto;
+            var result = new PagedResult<HotelDto>(hotelDto, baseCount, query.PageSize, query.PageNumber);
+
+            return result;
         }
         public HotelDto GetById(int hotelId)
         {

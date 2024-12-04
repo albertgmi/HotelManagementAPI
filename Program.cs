@@ -28,6 +28,8 @@ using HotelManagementAPI.Authorizations.ReservationAuthorization;
 using HotelManagementAPI.Services.EmailServiceFolder;
 using HotelManagementAPI.Services.ReportServiceFolder;
 using HotelManagementAPI.Services.FileService;
+using HotelManagementAPI.Services.UpdateServiceFolder;
+using Microsoft.AspNetCore.Routing.Matching;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -71,6 +73,16 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
     };
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .WithOrigins(builder.Configuration["AllowedOrigins"]);
+    });
+});
 
 // Dependcies injection
 
@@ -83,16 +95,20 @@ builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IUpdateService, UpdateService>();
 builder.Services.AddSingleton(authenticationSettings);
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 
 builder.Services.AddScoped<IValidator<CreateHotelDto>, CreateHotelDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateHotelDto>, UpdateHotelDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateHotelDto>, UpdateHotelDtoValidator>();
+builder.Services.AddScoped<IValidator<HotelQuery>, HotelQueryValidator>();
 builder.Services.AddScoped<IValidator<CreateReservationDto>, CreateReservationDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateReservationDto>, UpdateReservationDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateRoomDto>, CreateRoomDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateRoomDto>, UpdateRoomDtoValidator>();
+builder.Services.AddScoped<IValidator<RoomQuery>, RoomQueryValidator>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddScoped<IAuthorizationHandler, CreatedHotelRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, CreatedReservationRequirementHandler>();
@@ -119,5 +135,7 @@ using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
 var seeder = scope.ServiceProvider.GetService<IHotelSeeder>();
 seeder.Seed(dbContext);
+var updater = scope.ServiceProvider.GetService<IUpdateService>();
+updater.Update(dbContext);
 
 app.Run();

@@ -76,5 +76,45 @@ namespace HotelManagementAPI.Services.UserServiceFolder
             var tokenhandler = new JwtSecurityTokenHandler();
             return tokenhandler.WriteToken(token);
         }
+        public void MakeAdmin(int userId)
+        {
+            var user = _dbContext
+                .Users
+                .Include(x => x.Role)
+                .FirstOrDefault(x=>x.Id == userId);
+            if (user is null)
+                throw new NotFoundException("User not found");
+
+            var adminRole = _dbContext
+                .Roles
+                .FirstOrDefault(x => x.Name == "Admin");
+            if (adminRole is null)
+                throw new NotFoundException("Role not found");
+
+            if(user.Role.Name != "Admin")
+                user.Role = adminRole;
+
+            _dbContext.SaveChanges();
+        }
+        public void MakeManager(int userId)
+        {
+            var user = _dbContext
+                .Users
+                .Include(x => x.Role)
+                .FirstOrDefault(x => x.Id == userId);
+            if (user is null)
+                throw new NotFoundException("User not found");
+
+            var managerRole = _dbContext
+                .Roles
+                .FirstOrDefault(x => x.Name == "Manager");
+            if (managerRole is null)
+                throw new NotFoundException("Role not found");
+
+            if (user.Role.Name != "Manager")
+                user.Role = managerRole;
+
+            _dbContext.SaveChanges();
+        }
     }
 }

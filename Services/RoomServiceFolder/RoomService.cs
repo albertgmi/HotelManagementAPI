@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Security.Claims;
 using HotelManagementAPI.Services.FileService;
+using HotelManagementAPI.Models;
+using System.Linq.Expressions;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HotelManagementAPI.Services.RoomServiceFolder
 {
@@ -30,18 +33,43 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
             _fileService = fileService;
         }
 
-        public List<RoomDto> GetAll(int hotelId)
+        public PagedResult<RoomDto> GetAll(int hotelId, RoomQuery query)
         {
             var hotel = GetHotelWithRooms(hotelId);
-            var rooms = hotel
+            var baseRooms = hotel
                 .Rooms
-                .ToList();
+                .Where(x => query.SearchPhrase == null
+                            || (x.Name.ToLower().Contains(query.SearchPhrase.ToLower())
+                            || (x.Description.ToLower().Contains(query.SearchPhrase.ToLower())))).AsQueryable();
 
+            if (!query.SortBy.IsNullOrEmpty())
+            {
+                var columnSelector = new Dictionary<string, Expression<Func<Room, object>>>
+                {
+                    {nameof(Room.Name), x=>x.Name},
+                    {nameof(Room.Description), x=>x.Description},
+                    {nameof(Room.Capacity), x=>x.Capacity},
+                    {nameof(Room.PricePerNight), x=>x.PricePerNight},
+                    {nameof(Room.IsAvailable), x=>x.IsAvailable}
+                };
+                var selectedColumn = columnSelector[query.SortBy];
+
+                baseRooms = query.SortDirection == SortDirection.ASC
+                    ? baseRooms.OrderBy(selectedColumn)
+                    : baseRooms.OrderByDescending(selectedColumn);
+            }
+
+            var rooms = baseRooms
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
             if (rooms is null)
                 throw new NotFoundException($"Rooms not found in hotel with id {hotelId}");
 
+            var baseCount = baseRooms.Count();
             var roomsDto = _mapper.Map<List<RoomDto>>(rooms);
-            return roomsDto;
+            var pagedResult = new PagedResult<RoomDto>(roomsDto, baseCount, query.PageSize, query.PageNumber);
+            return pagedResult;
         }
         public RoomDto GetById(int hotelId, int roomId)
         {
@@ -151,6 +179,7 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
         {
             var hotel = _dbContext
                 .Hotels
+                .Include(x=>x.Address)
                 .Include(x => x.Rooms)
                 .ThenInclude(r=>r.Reservations)
                 .FirstOrDefault(x => x.Id == hotelId);

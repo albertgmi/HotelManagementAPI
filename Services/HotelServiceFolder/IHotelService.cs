@@ -1,4 +1,5 @@
-﻿using HotelManagementAPI.Models.HotelModels;
+﻿using HotelManagementAPI.Models;
+using HotelManagementAPI.Models.HotelModels;
 using HotelManagementAPI.Models.UserModels;
 using QuestPDF.Fluent;
 
@@ -6,7 +7,7 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
 {
     public interface IHotelService
     {
-        List<HotelDto> GetAll();
+        PagedResult<HotelDto> GetAll(HotelQuery query);
         HotelDto GetById(int id);
         int Create(CreateHotelDto dto);
         void Update(int id, UpdateHotelDto dto);

@@ -28,6 +28,7 @@ using HotelManagementAPI.Authorizations.ReservationAuthorization;
 using HotelManagementAPI.Services.EmailServiceFolder;
 using HotelManagementAPI.Services.ReportServiceFolder;
 using HotelManagementAPI.Services.FileService;
+using HotelManagementAPI.Services.UpdateServiceFolder;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -83,6 +84,7 @@ builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IUpdateService, UpdateService>();
 builder.Services.AddSingleton(authenticationSettings);
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
@@ -119,5 +121,7 @@ using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
 var seeder = scope.ServiceProvider.GetService<IHotelSeeder>();
 seeder.Seed(dbContext);
+var updater = scope.ServiceProvider.GetService<IUpdateService>();
+updater.Update(dbContext);
 
 app.Run();

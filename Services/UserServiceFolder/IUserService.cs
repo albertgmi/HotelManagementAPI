@@ -6,5 +6,7 @@ namespace HotelManagementAPI.Services.UserServiceFolder
     {
         void RegisterUser(RegisterUserDto registerUserDto);
         string GenerateJwt(LoginUserDto loginUserDto);
+        void MakeAdmin(int userId);
+        void MakeManager(int userId);
     }
 }

@@ -26,5 +26,19 @@ namespace HotelManagementAPI.Controllers
             var token = _userService.GenerateJwt(loginDto);
             return Ok(token);
         }
+        [HttpPost("{userId}/make-admin")]
+        [Authorize(Roles ="Admin")]
+        public ActionResult MakeAdmin([FromRoute] int userId)
+        {
+            _userService.MakeAdmin(userId);
+            return Ok($"User with id: {userId} is now an admin!");
+        }
+        [HttpPost("{userId}/make-manager")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult MakeManager([FromRoute] int userId)
+        {
+            _userService.MakeManager(userId);
+            return Ok($"User with id: {userId} is now a manager!");
+        }
     }
 }

@@ -12,6 +12,8 @@ using System.Net;
 using System.Security.Claims;
 using HotelManagementAPI.Services.FileService;
 using HotelManagementAPI.Models;
+using System.Linq.Expressions;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HotelManagementAPI.Services.RoomServiceFolder
 {
@@ -38,8 +40,25 @@ namespace HotelManagementAPI.Services.RoomServiceFolder
                 .Rooms
                 .Where(x => query.SearchPhrase == null
                             || (x.Name.ToLower().Contains(query.SearchPhrase.ToLower())
-                            || (x.Description.ToLower().Contains(query.SearchPhrase.ToLower()))));
-                
+                            || (x.Description.ToLower().Contains(query.SearchPhrase.ToLower())))).AsQueryable();
+
+            if (!query.SortBy.IsNullOrEmpty())
+            {
+                var columnSelector = new Dictionary<string, Expression<Func<Room, object>>>
+                {
+                    {nameof(Room.Name), x=>x.Name},
+                    {nameof(Room.Description), x=>x.Description},
+                    {nameof(Room.Capacity), x=>x.Capacity},
+                    {nameof(Room.PricePerNight), x=>x.PricePerNight},
+                    {nameof(Room.IsAvailable), x=>x.IsAvailable}
+                };
+                var selectedColumn = columnSelector[query.SortBy];
+
+                baseRooms = query.SortDirection == SortDirection.ASC
+                    ? baseRooms.OrderBy(selectedColumn)
+                    : baseRooms.OrderByDescending(selectedColumn);
+            }
+
             var rooms = baseRooms
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)

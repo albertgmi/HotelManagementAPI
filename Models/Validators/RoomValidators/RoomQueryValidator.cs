@@ -22,9 +22,9 @@ namespace HotelManagementAPI.Models.Validators.RoomValidators
             RuleFor(x => x.PageSize)
                 .NotEmpty()
                 .Must(pn => pageSize.Contains(pn));
-            //RuleFor(x => x.SortBy)
-            //    .Must(value => value.IsNullOrEmpty() || allowedSortByColumnNames.Contains(value))
-            //    .WithMessage($"Sort by is optional or must be in [{string.Join(", ", allowedSortByColumnNames)}]");
+            RuleFor(x => x.SortBy)
+                .Must(value => value.IsNullOrEmpty() || allowedSortByColumnNames.Contains(value))
+                .WithMessage($"Sort by is optional or must be in [{string.Join(", ", allowedSortByColumnNames)}]");
         }
     }
 }

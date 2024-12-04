@@ -103,7 +103,7 @@ builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 builder.Services.AddScoped<IValidator<CreateHotelDto>, CreateHotelDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateHotelDto>, UpdateHotelDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateHotelDto>, UpdateHotelDtoValidator>();
-builder.Services.AddScoped<IValidator<HotelQuery>, HotelQueryValidatior>();
+builder.Services.AddScoped<IValidator<HotelQuery>, HotelQueryValidator>();
 builder.Services.AddScoped<IValidator<CreateReservationDto>, CreateReservationDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateReservationDto>, UpdateReservationDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateRoomDto>, CreateRoomDtoValidator>();

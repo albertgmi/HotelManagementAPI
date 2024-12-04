@@ -11,9 +11,11 @@ using HotelManagementAPI.Services.ReportServiceFolder;
 using HotelManagementAPI.Services.UserServiceFolder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Security.Certificates;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 
@@ -49,6 +51,22 @@ namespace HotelManagementAPI.Services.HotelServiceFolder
                 .Where(x => query.SearchPhrase == null
                             || (x.Name.ToLower().Contains(query.SearchPhrase.ToLower())
                             || (x.Description.ToLower().Contains(query.SearchPhrase.ToLower()))));
+
+            if(!query.SortBy.IsNullOrEmpty())
+            {
+                var columnSelector = new Dictionary<string, Expression<Func<Hotel, object>>>
+                {
+                    {nameof(Hotel.Name), x=>x.Name},
+                    {nameof(Hotel.Description), x=>x.Description},
+                    {nameof(Hotel.Rating), x=>x.Rating},
+                    {nameof(Hotel.NumberOfRatings), x=>x.NumberOfRatings}
+                };
+                var selectedColumn = columnSelector[query.SortBy];
+
+                baseHotels = query.SortDirection == SortDirection.ASC 
+                    ? baseHotels.OrderBy(selectedColumn) 
+                    : baseHotels.OrderByDescending(selectedColumn);
+            }
 
             var hotels = baseHotels
                 .Skip(query.PageSize * (query.PageNumber - 1))

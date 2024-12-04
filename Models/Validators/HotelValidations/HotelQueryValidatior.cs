@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace HotelManagementAPI.Models.Validators.HotelValidations
 {
-    public class HotelQueryValidatior : AbstractValidator<HotelQuery>
+    public class HotelQueryValidator : AbstractValidator<HotelQuery>
     {
         private readonly int [] pageSize = new int[] { 5, 10, 15 };
         private readonly string[] allowedSortByColumnNames = new string[]
@@ -13,7 +13,7 @@ namespace HotelManagementAPI.Models.Validators.HotelValidations
             nameof(Hotel.Name), nameof(Hotel.Description),
             nameof(Hotel.Rating), nameof(Hotel.NumberOfRatings)
         };
-        public HotelQueryValidatior()
+        public HotelQueryValidator()
         {
             RuleFor(x => x.PageNumber)
                 .GreaterThanOrEqualTo(1);
